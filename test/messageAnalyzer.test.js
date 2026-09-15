@@ -177,3 +177,97 @@ test("uses a preview image when a dynamic page has little text", async () => {
   assert.match(reply, /ใช้ภาพตัวอย่างของเว็บไซต์ช่วยตรวจ/);
   assert.match(reply, /อ่านข้อความได้ไม่ครบ/);
 });
+
+test("uses a separate browser renderer when the first page has little text", async () => {
+  let classifiedContent;
+  const reply = await createCyberGuardReply("https://dynamic.example", {
+    aiEnabled: true,
+    dynamicAnalysisEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://dynamic.example/",
+      content: { title: "Loading", text: "Loading", limitedContent: true },
+    }),
+    dynamicContentFetcher: async () => ({
+      finalUrl: "https://dynamic.example/",
+      content: {
+        title: "คาสิโน",
+        text: "สมัครสมาชิก รับโบนัส ฝากเงิน เล่นสล็อต ".repeat(10),
+        analysisImageUrl: "data:image/jpeg;base64,dGVzdA==",
+        renderedWithBrowser: true,
+      },
+    }),
+    classifier: async (content) => {
+      classifiedContent = content;
+      return {
+        category: "gambling",
+        riskLevel: "high",
+        confidence: 0.95,
+        summaryThai: "พบเว็บพนัน",
+        evidenceThai: ["มีการฝากเงินและเล่นสล็อต"],
+        recommendedAction: "block",
+      };
+    },
+  });
+
+  assert.equal(classifiedContent.renderedWithBrowser, true);
+  assert.match(reply, /เปิดหน้าเว็บแบบจำลอง/);
+  assert.match(reply, /ควรหลีกเลี่ยงเว็บนี้/);
+});
+
+test("a dangerous reputation match overrides a low-risk AI verdict", async () => {
+  const reply = await createCyberGuardReply("https://reported.example", {
+    aiEnabled: true,
+    reputationCheckEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://reported.example/",
+      content: { text: "หน้าเว็บไซต์ทั่วไป ".repeat(20) },
+    }),
+    reputationChecker: async () => ({
+      status: "dangerous",
+      providers: ["Google Safe Browsing"],
+      threats: ["SOCIAL_ENGINEERING"],
+    }),
+    classifier: async () => ({
+      category: "legitimate",
+      riskLevel: "low",
+      confidence: 0.7,
+      summaryThai: "ข้อความในหน้าเว็บดูปกติ",
+      evidenceThai: [],
+      recommendedAction: "no_action",
+    }),
+  });
+
+  assert.match(reply, /ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย/);
+  assert.match(reply, /อย่าเปิดเว็บนี้ต่อ/);
+  assert.doesNotMatch(reply, /เปิดดูข้อมูลทั่วไปได้/);
+});
+
+test("adds web research as supporting evidence", async () => {
+  let classifiedContent;
+  const reply = await createCyberGuardReply("https://shop.example", {
+    aiEnabled: true,
+    webResearchEnabled: true,
+    webResearchMode: "always",
+    contentFetcher: async () => ({
+      finalUrl: "https://shop.example/",
+      content: { text: "ร้านค้าทั่วไป ".repeat(20) },
+    }),
+    webResearcher: async () => ({
+      summary: "พบคำเตือนจากหน่วยงานหนึ่ง",
+    }),
+    classifier: async (content) => {
+      classifiedContent = content;
+      return {
+        category: "suspicious",
+        riskLevel: "medium",
+        confidence: 0.8,
+        summaryThai: "ควรตรวจสอบร้านค้าก่อนจ่ายเงิน",
+        evidenceThai: [],
+        recommendedAction: "use_caution",
+      };
+    },
+  });
+
+  assert.match(classifiedContent.externalResearch, /คำเตือน/);
+  assert.match(reply, /ค้นข้อมูลเพิ่มเติม/);
+});

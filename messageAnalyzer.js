@@ -1,11 +1,14 @@
 const { classifyWebsite } = require("./aiClassifier");
+const { fetchDynamicWebContent } = require("./dynamicContentFetcher");
 const {
   createReplyText,
   createReplyTextWithRedirects,
   extractUrls,
 } = require("./linkAnalyzer");
 const { resolveRedirectChain } = require("./redirectResolver");
+const { checkUrlReputation } = require("./reputationChecker");
 const { fetchWebContent } = require("./webContentFetcher");
+const { researchWebsiteReputation } = require("./webResearcher");
 
 const KNOWN_WEBSITES = new Map([
   [
@@ -65,7 +68,18 @@ function knownWebsite(finalUrl) {
 }
 
 function formatAiClassification(result, options = {}) {
-  const verdict = SENIOR_VERDICTS[result.category] ?? SENIOR_VERDICTS.unknown;
+  const databaseDanger = options.reputation?.status === "dangerous";
+  const verdict = databaseDanger
+    ? {
+        headline: "⛔ ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย",
+        defaultReason: "มีผู้ตรวจพบและบันทึกเว็บนี้ไว้ในฐานข้อมูลอันตราย",
+        actions: [
+          "อย่าเปิดเว็บนี้ต่อ",
+          "อย่ากรอกข้อมูลหรือโอนเงิน",
+          "ลบข้อความหรือลิงก์นี้ทิ้ง",
+        ],
+      }
+    : SENIOR_VERDICTS[result.category] ?? SENIOR_VERDICTS.unknown;
   const evidence = result.evidenceThai
     .filter(Boolean)
     .slice(0, 2)
@@ -79,9 +93,20 @@ function formatAiClassification(result, options = {}) {
     known
       ? `🏢 เว็บไซต์: ใช้ชื่อเว็บทางการของ ${known.name} (${known.purpose})`
       : null,
+    options.reputation?.status === "dangerous"
+      ? `📚 ฐานข้อมูล: พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")}`
+      : options.reputation?.status === "not_found"
+        ? `📚 ฐานข้อมูล: ยังไม่พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")} (ไม่ได้แปลว่าปลอดภัย)`
+        : null,
+    options.researchUsed
+      ? "🔍 ค้นข้อมูลเพิ่มเติม: ระบบค้นหาข้อมูลเกี่ยวกับชื่อเว็บไซต์จากแหล่งอื่นร่วมด้วย"
+      : null,
     `🔎 เหตุผล: ${reason}`,
     evidence.length ? "👀 สิ่งที่ระบบพบ:\n" + evidence.join("\n") : null,
     options.imageUsed ? "🖼️ ระบบใช้ภาพตัวอย่างของเว็บไซต์ช่วยตรวจด้วย" : null,
+    options.renderedWithBrowser
+      ? "🌐 ระบบเปิดหน้าเว็บแบบจำลองและรอให้ข้อมูลแสดงก่อนตรวจ"
+      : null,
     options.limitedContent
       ? "ℹ️ หน้าเว็บนี้อ่านข้อความได้ไม่ครบ ผลตรวจจึงอาศัยภาพและข้อมูลที่พบร่วมกัน"
       : null,
@@ -120,20 +145,26 @@ async function createCyberGuardReply(text, options = {}) {
   const urls = extractUrls(text).slice(0, 3);
   const aiEnabled = options.aiEnabled === true;
 
-  if (urls.length === 0 || !aiEnabled) {
+  if (urls.length === 0 || (!aiEnabled && !options.reputationCheckEnabled)) {
     return createReplyTextWithRedirects(text, options.redirectResolver);
   }
 
   const fetcher = options.contentFetcher ?? fetchWebContent;
   const redirectResolver = options.redirectResolver ?? resolveRedirectChain;
   const classifier = options.classifier ?? classifyWebsite;
+  const dynamicFetcher = options.dynamicContentFetcher ?? fetchDynamicWebContent;
+  const reputationChecker = options.reputationChecker ?? checkUrlReputation;
+  const researcher = options.webResearcher ?? researchWebsiteReputation;
   let firstContentResult = null;
   let usage = null;
+  let dynamicUsed = false;
+  let researchUsed = false;
+  let reputation = null;
 
   const redirectResults = await Promise.all(
     urls.map(async (url, index) => {
       try {
-        if (index === 0) {
+        if (index === 0 && aiEnabled) {
           firstContentResult = await fetcher(url, {
             maxChars: options.maxContentChars,
           });
@@ -147,7 +178,83 @@ async function createCyberGuardReply(text, options = {}) {
   );
 
   const basicReply = createReplyText(text, redirectResults);
-  const content = firstContentResult?.content;
+  let content = firstContentResult?.content;
+  const initialLimited =
+    !content?.text || content.limitedContent || content.text.length < 160;
+
+  if (aiEnabled && initialLimited && options.dynamicAnalysisEnabled) {
+    try {
+      const dynamicResult = await dynamicFetcher(
+        firstContentResult?.finalUrl ?? urls[0],
+        { maxChars: options.maxContentChars }
+      );
+      if ((dynamicResult.content?.text?.length ?? 0) > (content?.text?.length ?? 0)) {
+        firstContentResult = dynamicResult;
+        content = dynamicResult.content;
+        dynamicUsed = true;
+      }
+    } catch (error) {
+      options.onAnalysis?.({
+        status: "dynamic_fetch_failed",
+        errorCode: error.code ?? "DYNAMIC_FETCH_ERROR",
+      });
+    }
+  }
+
+  const finalUrl =
+    firstContentResult?.finalUrl ?? redirectResults[0]?.finalUrl ?? urls[0];
+
+  if (options.reputationCheckEnabled) {
+    try {
+      reputation = await reputationChecker([urls[0], finalUrl], {
+        googleApiKey: options.googleSafeBrowsingApiKey,
+        phishTankEnabled: options.phishTankEnabled,
+        phishTankAppKey: options.phishTankAppKey,
+        openPhishEnabled: options.openPhishEnabled,
+      });
+    } catch (error) {
+      options.onAnalysis?.({
+        status: "reputation_failed",
+        errorCode: error.code ?? "REPUTATION_ERROR",
+      });
+    }
+  }
+
+  const researchRequested =
+    options.webResearchMode === "always" || /ค้น(?:หา)?(?:ข้อมูล)?เพิ่ม/i.test(text);
+  if (
+    aiEnabled &&
+    options.webResearchEnabled &&
+    researchRequested &&
+    reputation?.status !== "dangerous"
+  ) {
+    try {
+      const research = await researcher(finalUrl, {
+        apiKey: options.openaiApiKey,
+        model: options.webResearchModel ?? options.openaiModel,
+      });
+      if (research.summary) {
+        content = { ...(content ?? {}), externalResearch: research.summary };
+        researchUsed = true;
+      }
+    } catch (error) {
+      options.onAnalysis?.({
+        status: "web_research_failed",
+        errorCode: error.code ?? "WEB_RESEARCH_ERROR",
+      });
+    }
+  }
+
+  if (!aiEnabled) {
+    if (reputation?.status === "dangerous") {
+      return `${basicReply}\n\n📚 ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย\n⛔ อย่าเปิด อย่ากรอกข้อมูล และอย่าโอนเงิน`;
+    }
+    if (reputation?.status === "not_found") {
+      return `${basicReply}\n\n📚 ยังไม่พบรายงานอันตรายในฐานข้อมูล แต่ไม่ได้แปลว่าเว็บนี้ปลอดภัย`;
+    }
+    return basicReply;
+  }
+
   if (content?.previewImageUrl) {
     options.onPreview?.({
       imageUrl: content.previewImageUrl,
@@ -155,21 +262,35 @@ async function createCyberGuardReply(text, options = {}) {
     });
   }
 
-  if (!content?.text) {
+  if (!content?.text && reputation?.status !== "dangerous") {
     return `${basicReply}\n\n⚠️ ระบบอ่านเนื้อหาของเว็บไซต์นี้ไม่ได้ จึงยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย`;
   }
 
-  const limitedContent = content.limitedContent || content.text.length < 160;
-  if (limitedContent && !content.previewImageUrl) {
-    return formatLimitedContentReply(firstContentResult.finalUrl, content);
+  const limitedContent =
+    !content?.text || content.limitedContent || content.text.length < 160;
+  const hasAnalysisImage = Boolean(
+    content?.analysisImageUrl || content?.previewImageUrl
+  );
+  if (
+    limitedContent &&
+    !hasAnalysisImage &&
+    reputation?.status !== "dangerous"
+  ) {
+    const limitedReply = formatLimitedContentReply(finalUrl, content ?? {});
+    const databaseNote =
+      reputation?.status === "not_found"
+        ? "\n📚 ฐานข้อมูล: ยังไม่พบรายงานอันตราย แต่ไม่ได้แปลว่าปลอดภัย"
+        : "";
+    return `${limitedReply}${databaseNote}`;
   }
 
   try {
     const startedAt = Date.now();
     const result = await classifier(
       {
-        url: firstContentResult.finalUrl,
-        ...content,
+        url: finalUrl,
+        ...(content ?? {}),
+        reputation,
       },
       {
         apiKey: options.openaiApiKey,
@@ -188,11 +309,17 @@ async function createCyberGuardReply(text, options = {}) {
       estimatedCostUsd: usage?.estimatedCostUsd ?? null,
       inputTokens: usage?.inputTokens ?? null,
       outputTokens: usage?.outputTokens ?? null,
+      reputationStatus: reputation?.status ?? "disabled",
+      dynamicUsed,
+      researchUsed,
     });
     return formatAiClassification(result, {
-      finalUrl: firstContentResult.finalUrl,
-      imageUsed: Boolean(content.previewImageUrl),
+      finalUrl,
+      imageUsed: hasAnalysisImage,
       limitedContent,
+      renderedWithBrowser: dynamicUsed,
+      reputation,
+      researchUsed,
     }).slice(0, 4900);
   } catch (error) {
     options.onAnalysis?.({

@@ -21,8 +21,26 @@ const port = Number(process.env.PORT) || 3000;
 const aiEnabled = /^(1|true|yes)$/i.test(
   process.env.AI_ANALYSIS_ENABLED ?? "false"
 );
+const dynamicAnalysisEnabled = /^(1|true|yes)$/i.test(
+  process.env.DYNAMIC_ANALYSIS_ENABLED ?? "false"
+);
+const reputationCheckEnabled = /^(1|true|yes)$/i.test(
+  process.env.REPUTATION_CHECK_ENABLED ?? "false"
+);
+const phishTankEnabled = /^(1|true|yes)$/i.test(
+  process.env.PHISHTANK_ENABLED ?? "false"
+);
+const openPhishEnabled = /^(1|true|yes)$/i.test(
+  process.env.OPENPHISH_ENABLED ?? "true"
+);
+const webResearchEnabled = /^(1|true|yes)$/i.test(
+  process.env.WEB_RESEARCH_ENABLED ?? "false"
+);
+const webResearchMode =
+  process.env.WEB_RESEARCH_MODE === "always" ? "always" : "on_demand";
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const openaiModel = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+const webResearchModel = process.env.WEB_RESEARCH_MODEL || openaiModel;
 const requestedMaxContentChars =
   Number(process.env.AI_MAX_CONTENT_CHARS) || 12000;
 const maxContentChars = Math.min(
@@ -87,6 +105,15 @@ async function handleEvent(event) {
     aiWasUsed = useAi;
     replyText = await createCyberGuardReply(event.message.text, {
       aiEnabled: useAi,
+      dynamicAnalysisEnabled,
+      reputationCheckEnabled,
+      googleSafeBrowsingApiKey: process.env.GOOGLE_SAFE_BROWSING_API_KEY,
+      phishTankEnabled,
+      phishTankAppKey: process.env.PHISHTANK_APP_KEY,
+      openPhishEnabled,
+      webResearchEnabled: useAi && webResearchEnabled,
+      webResearchMode,
+      webResearchModel,
       maxContentChars,
       openaiApiKey,
       openaiModel,
@@ -163,6 +190,13 @@ app.get("/health", (_req, res) => {
       enabled: aiEnabled,
       model: aiEnabled ? openaiModel : null,
       requestsPerUserPerHour: aiEnabled ? aiRequestsPerHour : null,
+    },
+    checks: {
+      dynamicPage: dynamicAnalysisEnabled,
+      reputation: reputationCheckEnabled,
+      openPhish: openPhishEnabled,
+      webResearch: webResearchEnabled,
+      webResearchMode,
     },
   });
 });
