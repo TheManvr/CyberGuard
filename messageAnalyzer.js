@@ -366,7 +366,9 @@ async function createCyberGuardReply(text, options = {}) {
       options,
       reputation?.status === "dangerous" || DANGEROUS_CATEGORIES.has(result.category)
         ? "danger"
-        : "caution"
+        : result.category === "legitimate"
+          ? "likely_safe"
+          : "caution"
     );
     return formatAiClassification(result, {
       finalUrl,

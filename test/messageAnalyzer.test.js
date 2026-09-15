@@ -56,6 +56,30 @@ test("combines redirect checks with an AI website classification", async () => {
   assert.doesNotMatch(reply, /ความมั่นใจ/);
 });
 
+test("uses the likely-safe status only for a low-risk AI result", async () => {
+  let status;
+  await createCyberGuardReply("https://example.com", {
+    aiEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://example.com/",
+      content: { text: "ข้อมูลทั่วไปของเว็บไซต์ ".repeat(20) },
+    }),
+    classifier: async () => ({
+      category: "legitimate",
+      riskLevel: "low",
+      confidence: 0.8,
+      summaryThai: "ยังไม่พบข้อความหลอกลวง",
+      evidenceThai: [],
+      recommendedAction: "no_action",
+    }),
+    onStatus: (value) => {
+      status = value.status;
+    },
+  });
+
+  assert.equal(status, "likely_safe");
+});
+
 test("does not describe a low-risk AI result as guaranteed safe", () => {
   const output = formatAiClassification({
     category: "legitimate",
