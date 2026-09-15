@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: cyber-guard-bot
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm start
+    healthCheckPath: /health
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: LINE_CHANNEL_ACCESS_TOKEN
+        sync: false
+      - key: LINE_CHANNEL_SECRET
+        sync: false
+      - key: AI_ANALYSIS_ENABLED
+        value: "true"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.4-nano
+      - key: AI_MAX_CONTENT_CHARS
+        value: "12000"
+      - key: AI_REQUESTS_PER_HOUR
+        value: "10"

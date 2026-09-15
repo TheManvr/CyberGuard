@@ -1,0 +1,48 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+
+const {
+  createGeneralChatReply,
+  getQuickConversationReply,
+} = require("../conversation");
+
+test("greets the user and explains the bot in simple Thai", () => {
+  const reply = getQuickConversationReply("สวัสดีครับ");
+
+  assert.match(reply, /Cyber-Guard Bot/);
+  assert.match(reply, /ส่งลิงก์มาให้ผมตรวจ/);
+  assert.match(reply, /รหัส OTP/);
+});
+
+test("uses AI for a general question without storing the response", async () => {
+  let request;
+  const client = {
+    responses: {
+      create: async (value) => {
+        request = value;
+        return {
+          model: "gpt-5.4-nano",
+          output_text: "ได้ครับ วันนี้มีอะไรให้ช่วยครับ 😊",
+          usage: {
+            input_tokens: 50,
+            input_tokens_details: { cached_tokens: 0 },
+            output_tokens: 20,
+          },
+        };
+      },
+    },
+  };
+  let usage;
+  const reply = await createGeneralChatReply("วันนี้เป็นอย่างไรบ้าง", {
+    client,
+    safetyIdentifier: "hashed-user-id",
+    onUsage: (value) => {
+      usage = value;
+    },
+  });
+
+  assert.match(reply, /มีอะไรให้ช่วย/);
+  assert.equal(request.store, false);
+  assert.equal(request.safety_identifier, "hashed-user-id");
+  assert.equal(usage.inputTokens, 50);
+});

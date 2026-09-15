@@ -1,0 +1,26 @@
+{
+  "name": "cyber-guard-bot",
+  "version": "1.0.0",
+  "description": "LINE bot foundation for Cyber-Guard Bot",
+  "main": "index.js",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node --test",
+    "eval:ai": "node scripts/evaluate-ai.js",
+    "eval:ai:check": "node scripts/evaluate-ai.js --dry-run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@line/bot-sdk": "^11.2.0",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^7.15.0",
+    "zod": "^4.6.5"
+  }
+}

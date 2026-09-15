@@ -1,0 +1,8 @@
+node_modules/
+.pnpm-store/
+.env
+.env.*
+!.env.example
+pnpm-debug.log*
+npm-debug.log*
+eval-results/
