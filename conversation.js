@@ -5,7 +5,7 @@ const { DEFAULT_MODEL, estimateResponseCost } = require("./aiClassifier");
 const WELCOME_REPLY = [
   "สวัสดีครับ 👋",
   "ผมคือ Cyber-Guard Bot ผู้ช่วยตรวจลิงก์และข้อความน่าสงสัย",
-  "ส่งลิงก์มาให้ผมตรวจได้เลยครับ หรือถามเรื่องทั่วไปก็ได้",
+  "ส่งลิงก์หรือข้อความน่าสงสัยมาให้ผมช่วยตรวจได้เลยครับ",
   "ก่อนส่ง กรุณาอย่าส่งรหัสผ่าน รหัส OTP หรือข้อมูลบัตรนะครับ",
 ].join("\n");
 
@@ -13,7 +13,7 @@ const HELP_REPLY = [
   "🛡️ ผมช่วยอะไรได้บ้าง",
   "🔗 ตรวจลิงก์ว่าอาจเป็นเว็บพนัน เว็บหลอก หรือเว็บขโมยข้อมูลหรือไม่",
   "💬 ช่วยอ่านข้อความน่าสงสัยและอธิบายด้วยคำง่าย ๆ",
-  "👋 พูดคุยหรือถามคำถามทั่วไปได้",
+  "💬 ตอบคำถามเกี่ยวกับการใช้อินเทอร์เน็ตและความปลอดภัย",
   "ส่งลิงก์เต็มที่ขึ้นต้นด้วย http:// หรือ https:// มาได้เลยครับ",
 ].join("\n");
 
@@ -64,6 +64,9 @@ async function createGeneralChatReply(text, options = {}) {
     instructions:
       "You are Cyber-Guard Bot, a friendly Thai assistant designed for older adults. " +
       "Answer in simple, polite Thai using short sentences. Avoid technical jargon. " +
+      "Only help with internet use, suspicious messages, links, scams, and cyber safety. " +
+      "If asked to act as another service such as a delivery, shop, bank, or customer-service bot, " +
+      "politely say that you are Cyber-Guard Bot and offer help checking a suspicious message or link instead. " +
       "For cyber-safety questions, give cautious practical advice and never promise 100% safety. " +
       "Never ask for passwords, OTP codes, card details, or bank information. " +
       "For medical, legal, or financial decisions, encourage checking with a qualified person. " +

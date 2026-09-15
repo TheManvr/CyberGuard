@@ -10,7 +10,7 @@ test("greets the user and explains the bot in simple Thai", () => {
   const reply = getQuickConversationReply("สวัสดีครับ");
 
   assert.match(reply, /Cyber-Guard Bot/);
-  assert.match(reply, /ส่งลิงก์มาให้ผมตรวจ/);
+  assert.match(reply, /ส่งลิงก์หรือข้อความน่าสงสัย/);
   assert.match(reply, /รหัส OTP/);
 });
 
@@ -44,5 +44,7 @@ test("uses AI for a general question without storing the response", async () => 
   assert.match(reply, /มีอะไรให้ช่วย/);
   assert.equal(request.store, false);
   assert.equal(request.safety_identifier, "hashed-user-id");
+  assert.match(request.instructions, /Only help with internet use/);
+  assert.match(request.instructions, /delivery, shop, bank/);
   assert.equal(usage.inputTokens, 50);
 });
