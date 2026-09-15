@@ -4,7 +4,6 @@
   "description": "LINE bot foundation for Cyber-Guard Bot",
   "main": "index.js",
   "private": true,
-  "packageManager": "pnpm@11.19.0",
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
