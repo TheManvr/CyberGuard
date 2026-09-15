@@ -1,6 +1,7 @@
 require("dotenv").config({ quiet: true });
 
 const crypto = require("node:crypto");
+const path = require("node:path");
 const express = require("express");
 const line = require("@line/bot-sdk");
 const { DEFAULT_MODEL } = require("./aiClassifier");
@@ -13,6 +14,7 @@ const { extractUrls } = require("./linkAnalyzer");
 const { createLogger } = require("./logger");
 const { createCyberGuardReply } = require("./messageAnalyzer");
 const { createRateLimiter } = require("./rateLimiter");
+const { buildStatusImageMessage } = require("./statusIndicator");
 const { version } = require("./package.json");
 
 const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -69,11 +71,26 @@ if (aiEnabled && !openaiApiKey) {
 }
 
 const app = express();
+app.set("trust proxy", 1);
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "public"), { maxAge: "7d", immutable: true })
+);
 const client = new line.messagingApi.MessagingApiClient({
   channelAccessToken,
 });
 
-async function handleEvent(event) {
+function getPublicBaseUrl(req) {
+  const configuredUrl = process.env.PUBLIC_BASE_URL;
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  const host = req.get("host");
+  return host && req.protocol === "https" ? `https://${host}` : null;
+}
+
+async function handleEvent(event, options = {}) {
   if (event.type !== "message" || event.message.type !== "text") {
     return null;
   }
@@ -98,6 +115,7 @@ async function handleEvent(event) {
     .digest("hex");
   const startedAt = Date.now();
   let previewImageUrl = null;
+  let statusIndicator = null;
   let aiWasUsed = false;
   let replyText;
 
@@ -121,6 +139,9 @@ async function handleEvent(event) {
       onAnalysis: (details) => logger.info("ai_analysis", details),
       onPreview: ({ imageUrl }) => {
         previewImageUrl = imageUrl;
+      },
+      onStatus: ({ status }) => {
+        statusIndicator = status;
       },
     });
   } else if (quickReply) {
@@ -155,6 +176,13 @@ async function handleEvent(event) {
       text: replyText,
     },
   ];
+  const statusImage = buildStatusImageMessage(
+    statusIndicator,
+    options.publicBaseUrl
+  );
+  if (statusImage) {
+    messages.push(statusImage);
+  }
   if (previewImageUrl) {
     messages.push({
       type: "image",
@@ -203,9 +231,10 @@ app.get("/health", (_req, res) => {
 
 app.post("/webhook", line.middleware({ channelSecret }), (req, res) => {
   const events = req.body?.events ?? [];
+  const publicBaseUrl = getPublicBaseUrl(req);
   res.sendStatus(200);
 
-  void Promise.all(events.map(handleEvent)).catch((error) => {
+  void Promise.all(events.map((event) => handleEvent(event, { publicBaseUrl }))).catch((error) => {
     logger.error("webhook_processing_failed", {
       errorCode: error.code ?? "PROCESSING_ERROR",
     });

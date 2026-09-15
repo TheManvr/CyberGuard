@@ -90,6 +90,7 @@ test("identifies the main Google website without guaranteeing every page", () =>
 
 test("uses the verified registry for an official domain without calling AI", async () => {
   let classifierCalled = false;
+  let status;
   const reply = await createCyberGuardReply("https://maps.google.com/", {
     aiEnabled: true,
     reputationCheckEnabled: true,
@@ -107,9 +108,13 @@ test("uses the verified registry for an official domain without calling AI", asy
       classifierCalled = true;
       throw new Error("Official domains should not spend AI credits");
     },
+    onStatus: (value) => {
+      status = value.status;
+    },
   });
 
   assert.equal(classifierCalled, false);
+  assert.equal(status, "verified_official");
   assert.match(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
   assert.match(reply, /เจ้าของเว็บไซต์: Google/);
   assert.match(reply, /ไม่พบรายงานจาก OpenPhish/);
@@ -193,6 +198,7 @@ test("offers a safe preview image when the checked page supplies one", async () 
 
 test("uses a preview image when a dynamic page has little text", async () => {
   let classifiedContent;
+  let status;
   const reply = await createCyberGuardReply("https://game.example", {
     aiEnabled: true,
     contentFetcher: async () => ({
@@ -216,6 +222,9 @@ test("uses a preview image when a dynamic page has little text", async () => {
         recommendedAction: "block",
       };
     },
+    onStatus: (value) => {
+      status = value.status;
+    },
   });
 
   assert.equal(
@@ -225,6 +234,7 @@ test("uses a preview image when a dynamic page has little text", async () => {
   assert.match(reply, /ควรหลีกเลี่ยงเว็บนี้/);
   assert.match(reply, /ใช้ภาพตัวอย่างของเว็บไซต์ช่วยตรวจ/);
   assert.match(reply, /อ่านข้อความได้ไม่ครบ/);
+  assert.equal(status, "danger");
 });
 
 test("uses a separate browser renderer when the first page has little text", async () => {

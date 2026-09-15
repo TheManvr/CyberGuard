@@ -49,6 +49,18 @@ const SENIOR_VERDICTS = {
   },
 };
 
+const DANGEROUS_CATEGORIES = new Set([
+  "gambling",
+  "phishing",
+  "impersonation",
+  "financial_scam",
+  "suspicious",
+]);
+
+function reportStatus(options, status) {
+  options.onStatus?.({ status });
+}
+
 function knownWebsite(finalUrl) {
   const entry = findOfficialDomain(finalUrl);
   return entry
@@ -245,6 +257,7 @@ async function createCyberGuardReply(text, options = {}) {
       officialDomain: official.domain,
       reputationStatus: reputation?.status ?? "disabled",
     });
+    reportStatus(options, "verified_official");
     return formatVerifiedOfficialReply(official, {
       reputation,
       redirects: redirectResults[0]?.redirects ?? 0,
@@ -278,11 +291,14 @@ async function createCyberGuardReply(text, options = {}) {
 
   if (!aiEnabled) {
     if (reputation?.status === "dangerous") {
+      reportStatus(options, "danger");
       return `${basicReply}\n\n📚 ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย\n⛔ อย่าเปิด อย่ากรอกข้อมูล และอย่าโอนเงิน`;
     }
     if (reputation?.status === "not_found") {
+      reportStatus(options, "caution");
       return `${basicReply}\n\n📚 ยังไม่พบรายงานอันตรายในฐานข้อมูล แต่ไม่ได้แปลว่าเว็บนี้ปลอดภัย`;
     }
+    reportStatus(options, "caution");
     return basicReply;
   }
 
@@ -294,6 +310,7 @@ async function createCyberGuardReply(text, options = {}) {
   }
 
   if (!content?.text && reputation?.status !== "dangerous") {
+    reportStatus(options, "caution");
     return `${basicReply}\n\n⚠️ ระบบอ่านเนื้อหาของเว็บไซต์นี้ไม่ได้ จึงยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย`;
   }
 
@@ -312,6 +329,7 @@ async function createCyberGuardReply(text, options = {}) {
       reputation?.status === "not_found"
         ? "\n📚 ฐานข้อมูล: ยังไม่พบรายงานอันตราย แต่ไม่ได้แปลว่าปลอดภัย"
         : "";
+    reportStatus(options, "caution");
     return `${limitedReply}${databaseNote}`;
   }
 
@@ -344,6 +362,12 @@ async function createCyberGuardReply(text, options = {}) {
       dynamicUsed,
       researchUsed,
     });
+    reportStatus(
+      options,
+      reputation?.status === "dangerous" || DANGEROUS_CATEGORIES.has(result.category)
+        ? "danger"
+        : "caution"
+    );
     return formatAiClassification(result, {
       finalUrl,
       imageUsed: hasAnalysisImage,
@@ -357,6 +381,7 @@ async function createCyberGuardReply(text, options = {}) {
       status: "failed",
       errorCode: error.code ?? "AI_ERROR",
     });
+    reportStatus(options, "caution");
     return `${basicReply}\n\n⚠️ ระบบช่วยวิเคราะห์เนื้อหายังไม่พร้อม จึงยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย`;
   }
 }
