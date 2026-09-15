@@ -70,7 +70,7 @@ test("does not describe a low-risk AI result as guaranteed safe", () => {
   assert.doesNotMatch(output, /ปลอดภัยแน่นอน/);
 });
 
-test("identifies the main Google website without guaranteeing safety", () => {
+test("identifies the main Google website without guaranteeing every page", () => {
   const output = formatAiClassification(
     {
       category: "legitimate",
@@ -83,9 +83,58 @@ test("identifies the main Google website without guaranteeing safety", () => {
     { finalUrl: "https://www.google.com/search" }
   );
 
-  assert.match(output, /ชื่อเว็บทางการของ Google/);
-  assert.match(output, /บริการค้นหาข้อมูลของ Google/);
+  assert.match(output, /โดเมนทางการของ Google/);
+  assert.match(output, /บริการค้นหาข้อมูล.*Google/);
   assert.match(output, /ไม่รับรองความปลอดภัย 100%/);
+});
+
+test("uses the verified registry for an official domain without calling AI", async () => {
+  let classifierCalled = false;
+  const reply = await createCyberGuardReply("https://maps.google.com/", {
+    aiEnabled: true,
+    reputationCheckEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://maps.google.com/",
+      redirects: 0,
+      content: { text: "Google Maps" },
+    }),
+    reputationChecker: async () => ({
+      status: "not_found",
+      providers: ["OpenPhish"],
+      threats: [],
+    }),
+    classifier: async () => {
+      classifierCalled = true;
+      throw new Error("Official domains should not spend AI credits");
+    },
+  });
+
+  assert.equal(classifierCalled, false);
+  assert.match(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
+  assert.match(reply, /เจ้าของเว็บไซต์: Google/);
+  assert.match(reply, /ไม่พบรายงานจาก OpenPhish/);
+  assert.match(reply, /ไม่รับรองทุกหน้าและทุกเนื้อหาว่าปลอดภัย 100%/);
+});
+
+test("does not trust a lookalike domain", async () => {
+  const reply = await createCyberGuardReply("https://google.com.fake.example/", {
+    aiEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://google.com.fake.example/",
+      content: { text: "เว็บไซต์ทั่วไป ".repeat(20) },
+    }),
+    classifier: async () => ({
+      category: "suspicious",
+      riskLevel: "medium",
+      confidence: 0.8,
+      summaryThai: "ชื่อเว็บไซต์อาจทำให้เข้าใจผิด",
+      evidenceThai: [],
+      recommendedAction: "use_caution",
+    }),
+  });
+
+  assert.doesNotMatch(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
+  assert.match(reply, /ควรระวังเว็บนี้/);
 });
 
 test("warns clearly when a dynamic website has too little readable content", async () => {
@@ -240,6 +289,33 @@ test("a dangerous reputation match overrides a low-risk AI verdict", async () =>
   assert.match(reply, /ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย/);
   assert.match(reply, /อย่าเปิดเว็บนี้ต่อ/);
   assert.doesNotMatch(reply, /เปิดดูข้อมูลทั่วไปได้/);
+});
+
+test("a danger report overrides an official-domain registry match", async () => {
+  const reply = await createCyberGuardReply("https://google.com/bad-page", {
+    aiEnabled: true,
+    reputationCheckEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://google.com/bad-page",
+      content: { text: "หน้าเว็บไซต์ทั่วไป ".repeat(20) },
+    }),
+    reputationChecker: async () => ({
+      status: "dangerous",
+      providers: ["Google Safe Browsing"],
+      threats: ["SOCIAL_ENGINEERING"],
+    }),
+    classifier: async () => ({
+      category: "legitimate",
+      riskLevel: "low",
+      confidence: 0.7,
+      summaryThai: "ข้อความในหน้าเว็บดูปกติ",
+      evidenceThai: [],
+      recommendedAction: "no_action",
+    }),
+  });
+
+  assert.match(reply, /ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย/);
+  assert.doesNotMatch(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
 });
 
 test("adds web research as supporting evidence", async () => {

@@ -9,16 +9,7 @@ const { resolveRedirectChain } = require("./redirectResolver");
 const { checkUrlReputation } = require("./reputationChecker");
 const { fetchWebContent } = require("./webContentFetcher");
 const { researchWebsiteReputation } = require("./webResearcher");
-
-const KNOWN_WEBSITES = new Map([
-  [
-    "google.com",
-    {
-      name: "Google",
-      purpose: "บริการค้นหาข้อมูลของ Google",
-    },
-  ],
-]);
+const { findOfficialDomain } = require("./officialDomainRegistry");
 
 const SENIOR_VERDICTS = {
   gambling: {
@@ -59,12 +50,39 @@ const SENIOR_VERDICTS = {
 };
 
 function knownWebsite(finalUrl) {
-  try {
-    const hostname = new URL(finalUrl).hostname.toLowerCase();
-    return KNOWN_WEBSITES.get(hostname.replace(/^www\./, "")) ?? null;
-  } catch {
-    return null;
-  }
+  const entry = findOfficialDomain(finalUrl);
+  return entry
+    ? { ...entry, name: entry.organization, purpose: entry.purposeThai }
+    : null;
+}
+
+function formatVerifiedOfficialReply(official, options = {}) {
+  const checkedDate = official.verifiedAt.split("-").reverse().join("/");
+  const providers = options.reputation?.providers ?? [];
+  const reputationLine =
+    options.reputation?.status === "not_found" && providers.length > 0
+      ? `🔎 ตรวจเว็บอันตราย: ไม่พบรายงานจาก ${providers.join(" และ ")}`
+      : "🔎 ตรวจเว็บอันตราย: ยังตรวจฐานข้อมูลภายนอกได้ไม่ครบ";
+
+  return [
+    "🛡️ ผลตรวจเว็บไซต์",
+    "📌 สรุป: ✅ เป็นโดเมนทางการที่ยืนยันแล้ว",
+    `🏢 เจ้าของเว็บไซต์: ${official.organization}`,
+    `🌐 ชื่อเว็บที่ตรวจ: ${official.matchedHostname}`,
+    `📖 ใช้สำหรับ: ${official.purposeThai}`,
+    `📚 ฐานข้อมูล Cyber-Guard: ยืนยัน ${official.domain} ล่าสุด ${checkedDate}`,
+    reputationLine,
+    options.redirects > 0
+      ? `↪️ ลิงก์พามาที่โดเมนทางการนี้หลังเปลี่ยนเส้นทาง ${options.redirects} ครั้ง`
+      : null,
+    "✅ คำแนะนำ:",
+    "• เข้าใช้งานข้อมูลทั่วไปได้",
+    "• ก่อนกรอกรหัสผ่าน ให้ดูว่าชื่อเว็บยังลงท้ายตรงกับโดเมนทางการด้านบน",
+    "• ห้ามบอกรหัส OTP หรือรหัสผ่านแก่บุคคลอื่น",
+    "ℹ️ หมายเหตุ: ยืนยันเจ้าของโดเมนได้ แต่ไม่รับรองทุกหน้าและทุกเนื้อหาว่าปลอดภัย 100%",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function formatAiClassification(result, options = {}) {
@@ -91,7 +109,7 @@ function formatAiClassification(result, options = {}) {
     "🛡️ ผลตรวจเว็บไซต์",
     `📌 สรุป: ${verdict.headline}`,
     known
-      ? `🏢 เว็บไซต์: ใช้ชื่อเว็บทางการของ ${known.name} (${known.purpose})`
+      ? `🏢 เว็บไซต์: เป็นโดเมนทางการของ ${known.name} (${known.purpose})`
       : null,
     options.reputation?.status === "dangerous"
       ? `📚 ฐานข้อมูล: พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")}`
@@ -220,6 +238,19 @@ async function createCyberGuardReply(text, options = {}) {
     }
   }
 
+  const official = findOfficialDomain(finalUrl);
+  if (official && reputation?.status !== "dangerous") {
+    options.onAnalysis?.({
+      status: "official_domain_verified",
+      officialDomain: official.domain,
+      reputationStatus: reputation?.status ?? "disabled",
+    });
+    return formatVerifiedOfficialReply(official, {
+      reputation,
+      redirects: redirectResults[0]?.redirects ?? 0,
+    });
+  }
+
   const researchRequested =
     options.webResearchMode === "always" || /ค้น(?:หา)?(?:ข้อมูล)?เพิ่ม/i.test(text);
   if (
@@ -334,5 +365,6 @@ module.exports = {
   createCyberGuardReply,
   formatAiClassification,
   formatLimitedContentReply,
+  formatVerifiedOfficialReply,
   knownWebsite,
 };

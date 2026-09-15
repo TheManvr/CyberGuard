@@ -1,0 +1,142 @@
+[
+  {
+    "domain": "google.com",
+    "organization": "Google",
+    "purposeThai": "บริการค้นหาข้อมูลและบริการหลักของ Google",
+    "category": "technology",
+    "officialSource": "https://about.google/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "youtube.com",
+    "organization": "YouTube",
+    "purposeThai": "บริการวิดีโอของ YouTube ซึ่งเป็นบริษัทในเครือ Google",
+    "category": "media",
+    "officialSource": "https://about.youtube/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "apple.com",
+    "organization": "Apple",
+    "purposeThai": "เว็บไซต์หลัก ผลิตภัณฑ์ และบริการช่วยเหลือของ Apple",
+    "category": "technology",
+    "officialSource": "https://www.apple.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "microsoft.com",
+    "organization": "Microsoft",
+    "purposeThai": "เว็บไซต์หลัก ผลิตภัณฑ์ และบริการช่วยเหลือของ Microsoft",
+    "category": "technology",
+    "officialSource": "https://www.microsoft.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "github.com",
+    "organization": "GitHub",
+    "purposeThai": "บริการจัดเก็บและพัฒนาซอฟต์แวร์ของ GitHub",
+    "category": "technology",
+    "officialSource": "https://github.com/about",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "line.me",
+    "organization": "LINE",
+    "purposeThai": "เว็บไซต์และบริการหลักของ LINE",
+    "category": "communication",
+    "officialSource": "https://line.me/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "line.biz",
+    "organization": "LINE for Business",
+    "purposeThai": "บริการสำหรับธุรกิจและบัญชีทางการของ LINE",
+    "category": "communication",
+    "officialSource": "https://www.linebiz.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "openai.com",
+    "organization": "OpenAI",
+    "purposeThai": "เว็บไซต์ ผลิตภัณฑ์ และเอกสารอย่างเป็นทางการของ OpenAI",
+    "category": "technology",
+    "officialSource": "https://openai.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "wikipedia.org",
+    "organization": "Wikipedia",
+    "purposeThai": "สารานุกรมออนไลน์ของมูลนิธิ Wikimedia",
+    "category": "education",
+    "officialSource": "https://www.wikipedia.org/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "bot.or.th",
+    "organization": "ธนาคารแห่งประเทศไทย",
+    "purposeThai": "ข้อมูลและบริการทางการของธนาคารแห่งประเทศไทย",
+    "category": "thai-government",
+    "officialSource": "https://www.bot.or.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "sec.or.th",
+    "organization": "สำนักงาน ก.ล.ต.",
+    "purposeThai": "ข้อมูลทางการด้านตลาดทุนและการลงทุนของประเทศไทย",
+    "category": "thai-government",
+    "officialSource": "https://www.sec.or.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "etda.or.th",
+    "organization": "ETDA",
+    "purposeThai": "ข้อมูลและบริการด้านธุรกรรมทางอิเล็กทรอนิกส์ของประเทศไทย",
+    "category": "thai-government",
+    "officialSource": "https://www.etda.or.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "thaigov.go.th",
+    "organization": "รัฐบาลไทย",
+    "purposeThai": "ข่าวสารและข้อมูลทางการของรัฐบาลไทย",
+    "category": "thai-government",
+    "officialSource": "https://www.thaigov.go.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  },
+  {
+    "domain": "thailand.go.th",
+    "organization": "พอร์ทัลรัฐบาลไทย",
+    "purposeThai": "ศูนย์รวมข้อมูลและบริการภาครัฐของประเทศไทย",
+    "category": "thai-government",
+    "officialSource": "https://www.thailand.go.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-15",
+    "status": "verified"
+  }
+]
