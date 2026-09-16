@@ -188,7 +188,7 @@ function createReplyText(text, redirectResults = []) {
           ? analysis.warnings.map((warning) => `• ${warning}`).join("\n")
           : "• ยังไม่พบสิ่งผิดปกติจากลิงก์ที่ส่งมา";
       const domainSignal = analysis.domainSignal
-        ? `\n• ${analysis.domainSignal.descriptionThai}\n• ${analysis.domainSignal.limitationThai}`
+        ? `\n• ${analysis.domainSignal.seniorLabelThai}`
         : "";
       return `${index + 1}. ${analysis.hostname}\n${result}${domainSignal}`;
     })

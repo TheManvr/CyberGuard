@@ -54,6 +54,7 @@ test("combines redirect checks with an AI website classification", async () => {
   assert.match(reply, /🔎 เหตุผล/);
   assert.match(reply, /✅ ควรทำตอนนี้/);
   assert.doesNotMatch(reply, /ความมั่นใจ/);
+  assert.doesNotMatch(reply, /ฐานข้อมูล/);
 });
 
 test("uses the likely-safe status only for a low-risk AI result", async () => {
@@ -90,7 +91,7 @@ test("does not describe a low-risk AI result as guaranteed safe", () => {
     recommendedAction: "no_action",
   });
 
-  assert.match(output, /ไม่รับรองความปลอดภัย 100%/);
+  assert.match(output, /หากต้องกรอกรหัสหรือโอนเงิน/);
   assert.doesNotMatch(output, /ปลอดภัยแน่นอน/);
 });
 
@@ -108,12 +109,13 @@ test("explains a domain registration group without treating it as proof of safet
       domainSignal: {
         descriptionThai: "ชื่อเว็บอยู่ในกลุ่มหน่วยงานรัฐไทย",
         limitationThai: "ส่วนท้ายของชื่อเว็บเพียงอย่างเดียว ยังไม่รับรองว่าทุกหน้าปลอดภัย",
+        seniorLabelThai: "ชื่อเว็บใช้ .go.th ซึ่งมักเป็นเว็บหน่วยงานรัฐไทย",
       },
     }
   );
 
-  assert.match(output, /กลุ่มชื่อเว็บ/);
-  assert.match(output, /ยังไม่รับรองว่าทุกหน้า/);
+  assert.match(output, /มักเป็นเว็บหน่วยงานรัฐไทย/);
+  assert.doesNotMatch(output, /ส่วนท้ายของชื่อเว็บ/);
   assert.doesNotMatch(output, /ปลอดภัยแน่นอน/);
 });
 
@@ -130,9 +132,8 @@ test("identifies the main Google website without guaranteeing every page", () =>
     { finalUrl: "https://www.google.com/search" }
   );
 
-  assert.match(output, /โดเมนทางการของ Google/);
-  assert.match(output, /บริการค้นหาข้อมูล.*Google/);
-  assert.match(output, /ไม่รับรองความปลอดภัย 100%/);
+  assert.match(output, /เว็บไซต์ทางการของ Google/);
+  assert.match(output, /หากต้องกรอกรหัสหรือโอนเงิน/);
 });
 
 test("uses the verified registry for an official domain without calling AI", async () => {
@@ -162,10 +163,9 @@ test("uses the verified registry for an official domain without calling AI", asy
 
   assert.equal(classifierCalled, false);
   assert.equal(status, "verified_official");
-  assert.match(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
-  assert.match(reply, /เจ้าของเว็บไซต์: Google/);
-  assert.match(reply, /ไม่พบรายงานจาก OpenPhish/);
-  assert.match(reply, /ไม่รับรองทุกหน้าและทุกเนื้อหาว่าปลอดภัย 100%/);
+  assert.match(reply, /เป็นเว็บไซต์ทางการของ Google/);
+  assert.match(reply, /ใช้สำหรับ/);
+  assert.doesNotMatch(reply, /OpenPhish|ฐานข้อมูล/);
 });
 
 test("does not trust a lookalike domain", async () => {
@@ -185,7 +185,7 @@ test("does not trust a lookalike domain", async () => {
     }),
   });
 
-  assert.doesNotMatch(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
+  assert.doesNotMatch(reply, /เป็นเว็บไซต์ทางการ/);
   assert.match(reply, /ควรระวังเว็บนี้/);
 });
 
@@ -206,9 +206,9 @@ test("warns clearly when a dynamic website has too little readable content", asy
     },
   });
 
-  assert.match(reply, /ยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย/);
-  assert.match(reply, /แสดงข้อมูลหลังจากเปิดในเบราว์เซอร์/);
-  assert.match(reply, /อย่าเพิ่งสมัครสมาชิกหรือเติมเงิน/);
+  assert.match(reply, /ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย/);
+  assert.match(reply, /อ่านข้อมูลของเว็บนี้ได้ไม่ครบ/);
+  assert.match(reply, /อย่าเพิ่งสมัครสมาชิก เติมเงิน หรือโอนเงิน/);
 });
 
 test("offers a safe preview image when the checked page supplies one", async () => {
@@ -279,8 +279,8 @@ test("uses a preview image when a dynamic page has little text", async () => {
     "https://game.example/preview.jpg"
   );
   assert.match(reply, /ควรหลีกเลี่ยงเว็บนี้/);
-  assert.match(reply, /ใช้ภาพตัวอย่างของเว็บไซต์ช่วยตรวจ/);
-  assert.match(reply, /อ่านข้อความได้ไม่ครบ/);
+  assert.match(reply, /ภาพมีเกมพนันและปุ่มเติมเงิน/);
+  assert.doesNotMatch(reply, /ใช้ภาพตัวอย่าง|อ่านข้อมูลได้ไม่ครบ/);
   assert.equal(status, "danger");
 });
 
@@ -316,7 +316,8 @@ test("uses a separate browser renderer when the first page has little text", asy
   });
 
   assert.equal(classifiedContent.renderedWithBrowser, true);
-  assert.match(reply, /เปิดหน้าเว็บแบบจำลอง/);
+  assert.match(reply, /พบเว็บพนัน/);
+  assert.doesNotMatch(reply, /เปิดหน้าเว็บแบบจำลอง/);
   assert.match(reply, /ควรหลีกเลี่ยงเว็บนี้/);
 });
 
@@ -343,7 +344,7 @@ test("a dangerous reputation match overrides a low-risk AI verdict", async () =>
     }),
   });
 
-  assert.match(reply, /ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย/);
+  assert.match(reply, /มีข้อมูลเตือนว่าเว็บนี้อาจอันตราย/);
   assert.match(reply, /อย่าเปิดเว็บนี้ต่อ/);
   assert.doesNotMatch(reply, /เปิดดูข้อมูลทั่วไปได้/);
 });
@@ -371,7 +372,7 @@ test("a danger report overrides an official-domain registry match", async () => 
     }),
   });
 
-  assert.match(reply, /ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย/);
+  assert.match(reply, /มีข้อมูลเตือนว่าเว็บนี้อาจอันตราย/);
   assert.doesNotMatch(reply, /เป็นโดเมนทางการที่ยืนยันแล้ว/);
 });
 
@@ -402,5 +403,5 @@ test("adds web research as supporting evidence", async () => {
   });
 
   assert.match(classifiedContent.externalResearch, /คำเตือน/);
-  assert.match(reply, /ค้นข้อมูลเพิ่มเติม/);
+  assert.doesNotMatch(reply, /ค้นข้อมูลเพิ่มเติม/);
 });

@@ -39,13 +39,13 @@ const SENIOR_VERDICTS = {
     actions: ["อย่าให้ข้อมูลส่วนตัว", "อย่าโอนเงิน", "ตรวจสอบกับแหล่งทางการก่อน"],
   },
   legitimate: {
-    headline: "🛡️ ยังไม่พบสัญญาณหลอกลวงจากข้อมูลที่อ่านได้",
-    defaultReason: "ข้อมูลที่ระบบอ่านได้ยังไม่พบการหลอกให้เสียเงินหรือส่งข้อมูล",
+    headline: "🛡️ ตอนนี้ยังไม่พบสิ่งน่ากังวล",
+    defaultReason: "ตอนนี้ยังไม่พบข้อความที่หลอกให้เสียเงินหรือส่งข้อมูล",
     actions: ["เปิดดูข้อมูลทั่วไปได้", "ก่อนกรอกรหัสหรือข้อมูลบัตร ให้ตรวจชื่อเว็บอีกครั้ง"],
   },
   unknown: {
-    headline: "⚠️ ยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย",
-    defaultReason: "ข้อมูลที่ระบบอ่านได้ยังไม่พอสำหรับการตัดสิน",
+    headline: "⚠️ ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย",
+    defaultReason: "ตอนนี้มีข้อมูลไม่พอสำหรับการตัดสิน",
     actions: ["อย่าเพิ่งสมัครหรือโอนเงิน", "อย่ากรอกรหัสผ่าน รหัส OTP หรือข้อมูลบัตร", "ตรวจสอบกับแหล่งทางการก่อน"],
   },
 };
@@ -70,29 +70,12 @@ function knownWebsite(finalUrl) {
 }
 
 function formatVerifiedOfficialReply(official, options = {}) {
-  const checkedDate = official.verifiedAt.split("-").reverse().join("/");
-  const providers = options.reputation?.providers ?? [];
-  const reputationLine =
-    options.reputation?.status === "not_found" && providers.length > 0
-      ? `🔎 ตรวจเว็บอันตราย: ไม่พบรายงานจาก ${providers.join(" และ ")}`
-      : "🔎 ตรวจเว็บอันตราย: ยังตรวจฐานข้อมูลภายนอกได้ไม่ครบ";
-
   return [
     "🛡️ ผลตรวจเว็บไซต์",
-    "📌 สรุป: ✅ เป็นโดเมนทางการที่ยืนยันแล้ว",
-    `🏢 เจ้าของเว็บไซต์: ${official.organization}`,
-    `🌐 ชื่อเว็บที่ตรวจ: ${official.matchedHostname}`,
+    `📌 สรุป: ✅ เป็นเว็บไซต์ทางการของ ${official.organization}`,
     `📖 ใช้สำหรับ: ${official.purposeThai}`,
-    `📚 ฐานข้อมูล Cyber-Guard: ยืนยัน ${official.domain} ล่าสุด ${checkedDate}`,
-    reputationLine,
-    options.redirects > 0
-      ? `↪️ ลิงก์พามาที่โดเมนทางการนี้หลังเปลี่ยนเส้นทาง ${options.redirects} ครั้ง`
-      : null,
-    "✅ คำแนะนำ:",
-    "• เข้าใช้งานข้อมูลทั่วไปได้",
-    "• ก่อนกรอกรหัสผ่าน ให้ดูว่าชื่อเว็บยังลงท้ายตรงกับโดเมนทางการด้านบน",
-    "• ห้ามบอกรหัส OTP หรือรหัสผ่านแก่บุคคลอื่น",
-    "ℹ️ หมายเหตุ: ยืนยันเจ้าของโดเมนได้ แต่ไม่รับรองทุกหน้าและทุกเนื้อหาว่าปลอดภัย 100%",
+    "✅ เข้าใช้งานข้อมูลทั่วไปได้",
+    "⚠️ อย่าบอกรหัส OTP หรือรหัสผ่านให้ผู้อื่นครับ",
   ]
     .filter(Boolean)
     .join("\n");
@@ -102,8 +85,8 @@ function formatAiClassification(result, options = {}) {
   const databaseDanger = options.reputation?.status === "dangerous";
   const verdict = databaseDanger
     ? {
-        headline: "⛔ ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย",
-        defaultReason: "มีผู้ตรวจพบและบันทึกเว็บนี้ไว้ในฐานข้อมูลอันตราย",
+        headline: "⛔ มีข้อมูลเตือนว่าเว็บนี้อาจอันตราย",
+        defaultReason: "มีข้อมูลเตือนว่าเว็บนี้อาจไม่ปลอดภัย",
         actions: [
           "อย่าเปิดเว็บนี้ต่อ",
           "อย่ากรอกข้อมูลหรือโอนเงิน",
@@ -111,46 +94,31 @@ function formatAiClassification(result, options = {}) {
         ],
       }
     : SENIOR_VERDICTS[result.category] ?? SENIOR_VERDICTS.unknown;
-  const evidence = result.evidenceThai
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((item) => `• ${item}`);
   const known = knownWebsite(options.finalUrl);
-  const reason = result.summaryThai || verdict.defaultReason;
+  const reason = shortenForSenior(result.summaryThai || verdict.defaultReason);
 
   return [
     "🛡️ ผลตรวจเว็บไซต์",
     `📌 สรุป: ${verdict.headline}`,
     known
-      ? `🏢 เว็บไซต์: เป็นโดเมนทางการของ ${known.name} (${known.purpose})`
+      ? `🏢 เป็นเว็บไซต์ทางการของ ${known.name}`
       : null,
     options.domainSignal
-      ? `🏷️ กลุ่มชื่อเว็บ: ${options.domainSignal.descriptionThai}`
-      : null,
-    options.domainSignal ? `ℹ️ ${options.domainSignal.limitationThai}` : null,
-    options.reputation?.status === "dangerous"
-      ? `📚 ฐานข้อมูล: พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")}`
-      : options.reputation?.status === "not_found"
-        ? `📚 ฐานข้อมูล: ยังไม่พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")} (ไม่ได้แปลว่าปลอดภัย)`
-        : null,
-    options.researchUsed
-      ? "🔍 ค้นข้อมูลเพิ่มเติม: ระบบค้นหาข้อมูลเกี่ยวกับชื่อเว็บไซต์จากแหล่งอื่นร่วมด้วย"
+      ? `🏷️ ${options.domainSignal.seniorLabelThai}`
       : null,
     `🔎 เหตุผล: ${reason}`,
-    evidence.length ? "👀 สิ่งที่ระบบพบ:\n" + evidence.join("\n") : null,
-    options.imageUsed ? "🖼️ ระบบใช้ภาพตัวอย่างของเว็บไซต์ช่วยตรวจด้วย" : null,
-    options.renderedWithBrowser
-      ? "🌐 ระบบเปิดหน้าเว็บแบบจำลองและรอให้ข้อมูลแสดงก่อนตรวจ"
-      : null,
-    options.limitedContent
-      ? "ℹ️ หน้าเว็บนี้อ่านข้อความได้ไม่ครบ ผลตรวจจึงอาศัยภาพและข้อมูลที่พบร่วมกัน"
-      : null,
     "✅ ควรทำตอนนี้:",
-    ...verdict.actions.map((action) => `• ${action}`),
-    "ℹ️ หมายเหตุ: ผลตรวจช่วยประกอบการตัดสินใจ และไม่รับรองความปลอดภัย 100%",
+    ...verdict.actions.slice(0, 2).map((action) => `• ${action}`),
+    "⚠️ หากต้องกรอกรหัสหรือโอนเงิน ให้หยุดและตรวจสอบอีกครั้งครับ",
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function shortenForSenior(value, maxLength = 150) {
+  const text = String(value).replace(/\s+/g, " ").trim();
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trimEnd()}...`;
 }
 
 function formatLimitedContentReply(url, content, domainSignal = null) {
@@ -163,16 +131,13 @@ function formatLimitedContentReply(url, content, domainSignal = null) {
 
   return [
     "🛡️ ผลตรวจเว็บไซต์",
-    "📌 สรุป: ⚠️ ยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย",
-    `🌐 เว็บไซต์: ${hostname}`,
-    domainSignal ? `🏷️ กลุ่มชื่อเว็บ: ${domainSignal.descriptionThai}` : null,
-    domainSignal ? `ℹ️ ${domainSignal.limitationThai}` : null,
-    "🔎 เหตุผล: หน้าเว็บนี้แสดงข้อมูลหลังจากเปิดในเบราว์เซอร์ ทำให้ระบบอ่านข้อความได้เพียงเล็กน้อย",
+    "📌 สรุป: ⚠️ ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย",
+    domainSignal ? `🏷️ ${domainSignal.seniorLabelThai}` : null,
+    "🔎 เหตุผล: ตอนนี้ระบบอ่านข้อมูลของเว็บนี้ได้ไม่ครบ",
     "✅ ควรทำตอนนี้:",
-    "• อย่าเพิ่งสมัครสมาชิกหรือเติมเงิน",
+    "• อย่าเพิ่งสมัครสมาชิก เติมเงิน หรือโอนเงิน",
     "• อย่ากรอกรหัสผ่าน รหัส OTP หรือข้อมูลบัตร",
-    "• ปิดหน้าเว็บ และตรวจสอบกับแหล่งทางการก่อน",
-    content.title ? `🏷️ ชื่อที่เว็บแสดง: ${content.title}` : null,
+    "• ตรวจสอบกับหน่วยงานหรือร้านค้าทางการก่อนครับ",
   ]
     .filter(Boolean)
     .join("\n");
@@ -301,11 +266,7 @@ async function createCyberGuardReply(text, options = {}) {
   if (!aiEnabled) {
     if (reputation?.status === "dangerous") {
       reportStatus(options, "danger");
-      return `${basicReply}\n\n📚 ฐานข้อมูลแจ้งว่าเว็บนี้อันตราย\n⛔ อย่าเปิด อย่ากรอกข้อมูล และอย่าโอนเงิน`;
-    }
-    if (reputation?.status === "not_found") {
-      reportStatus(options, "caution");
-      return `${basicReply}\n\n📚 ยังไม่พบรายงานอันตรายในฐานข้อมูล แต่ไม่ได้แปลว่าเว็บนี้ปลอดภัย`;
+      return `${basicReply}\n\n⛔ มีข้อมูลเตือนว่าเว็บนี้อาจอันตราย\nอย่าเปิด อย่ากรอกข้อมูล และอย่าโอนเงินครับ`;
     }
     reportStatus(options, "caution");
     return basicReply;
@@ -338,12 +299,8 @@ async function createCyberGuardReply(text, options = {}) {
       content ?? {},
       domainSignal
     );
-    const databaseNote =
-      reputation?.status === "not_found"
-        ? "\n📚 ฐานข้อมูล: ยังไม่พบรายงานอันตราย แต่ไม่ได้แปลว่าปลอดภัย"
-        : "";
     reportStatus(options, "caution");
-    return `${limitedReply}${databaseNote}`;
+    return limitedReply;
   }
 
   try {

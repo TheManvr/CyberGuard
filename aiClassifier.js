@@ -26,7 +26,7 @@ const WebsiteClassification = z
     ]),
     riskLevel: z.enum(["high", "medium", "low", "unknown"]),
     confidence: z.number().min(0).max(1),
-    summaryThai: z.string().max(400),
+    summaryThai: z.string().max(180),
     evidenceThai: z.array(z.string().max(240)).max(3),
     recommendedAction: z.enum([
       "block",
@@ -128,6 +128,8 @@ async function classifyWebsiteWithUsage(content, options = {}) {
           "Write summaryThai and evidenceThai in simple, short Thai. Do not use technical words " +
           "such as HTML, URL, domain, redirect, IP address, protocol, model, confidence, or phishing. " +
           "Use 'ครับ' as the only Thai polite ending. Never use 'ค่ะ' or 'คะ'. " +
+          "Write summaryThai as one short sentence for an older adult. " +
+          "Do not mention databases, AI, providers, or technical inspection methods. " +
           "Do not promise that a website is completely safe.",
       },
       {
