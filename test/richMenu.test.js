@@ -15,8 +15,18 @@ test("defines three full-height menu areas for the primary user actions", () => 
   assert.equal(request.size.height, 1686);
   assert.equal(request.areas.length, 3);
   assert.deepEqual(
-    request.areas.map((area) => area.action.text),
+    request.areas.map((area) => area.action.label),
     ["ตรวจลิงก์", "ตรวจข้อความ", "ขอความช่วยเหลือ"]
+  );
+  assert.deepEqual(request.areas[0].action, {
+    type: "postback",
+    label: "ตรวจลิงก์",
+    data: "action=check_link",
+    inputOption: "openKeyboard",
+  });
+  assert.deepEqual(
+    request.areas.slice(1).map((area) => area.action.text),
+    ["ตรวจข้อความ", "ขอความช่วยเหลือ"]
   );
   assert.equal(
     request.areas.reduce((total, area) => total + area.bounds.width, 0),
@@ -75,7 +85,7 @@ test("reuses an existing named menu without uploading another image", async () =
 
 test("does not expose mutable shared rich-menu request state", () => {
   const request = createRichMenuRequest();
-  request.areas[0].action.text = "changed";
+  request.areas[1].action.text = "changed";
 
-  assert.equal(RICH_MENU_REQUEST.areas[0].action.text, "ตรวจลิงก์");
+  assert.equal(RICH_MENU_REQUEST.areas[1].action.text, "ตรวจข้อความ");
 });

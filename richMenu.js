@@ -1,10 +1,23 @@
-const RICH_MENU_NAME = "Cyber-Guard Main Menu v2";
+const RICH_MENU_NAME = "Cyber-Guard Main Menu v3";
 const RICH_MENU_IMAGE_TYPE = "image/jpeg";
 
 const MENU_ACTIONS = [
-  { label: "ตรวจลิงก์", text: "ตรวจลิงก์" },
-  { label: "ตรวจข้อความ", text: "ตรวจข้อความ" },
-  { label: "ขอความช่วยเหลือ", text: "ขอความช่วยเหลือ" },
+  {
+    label: "ตรวจลิงก์",
+    action: {
+      type: "postback",
+      data: "action=check_link",
+      inputOption: "openKeyboard",
+    },
+  },
+  {
+    label: "ตรวจข้อความ",
+    action: { type: "message", text: "ตรวจข้อความ" },
+  },
+  {
+    label: "ขอความช่วยเหลือ",
+    action: { type: "message", text: "ขอความช่วยเหลือ" },
+  },
 ];
 
 const RICH_MENU_REQUEST = {
@@ -19,11 +32,7 @@ const RICH_MENU_REQUEST = {
       width: index === 2 ? 834 : 833,
       height: 1686,
     },
-    action: {
-      type: "message",
-      label: item.label,
-      text: item.text,
-    },
+    action: { label: item.label, ...item.action },
   })),
 };
 
