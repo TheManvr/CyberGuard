@@ -5,7 +5,13 @@ const path = require("node:path");
 const line = require("@line/bot-sdk");
 const { ensureCyberGuardRichMenu } = require("../richMenu");
 
-const imagePath = path.join(__dirname, "..", "public", "rich-menu", "main.jpg");
+const imagePath = path.join(
+  __dirname,
+  "..",
+  "public",
+  "rich-menu",
+  "cyber-guard-theme-v2.jpg"
+);
 const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
 async function main() {
