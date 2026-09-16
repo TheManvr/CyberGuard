@@ -1,4 +1,5 @@
 const { resolveRedirectChain } = require("./redirectResolver");
+const { detectDomainRegistrationSignal } = require("./domainTrustSignals");
 
 const SHORTENER_HOSTS = new Set([
   "bit.ly",
@@ -100,7 +101,12 @@ function analyzeUrl(value) {
     warnings.push("มีคำที่มักใช้ในหน้าหลอกให้เข้าสู่ระบบหรือยืนยันข้อมูล");
   }
 
-  return { value, hostname, warnings };
+  return {
+    value,
+    hostname,
+    warnings,
+    domainSignal: detectDomainRegistrationSignal(url),
+  };
 }
 
 const RESOLUTION_ERROR_MESSAGES = {
@@ -124,6 +130,7 @@ function combineAnalysis(analysis, resolution) {
   }
 
   const warnings = [...analysis.warnings];
+  let finalAnalysis = null;
 
   if (resolution.errorCode) {
     warnings.push(
@@ -134,7 +141,7 @@ function combineAnalysis(analysis, resolution) {
   }
 
   if (resolution.redirects > 0) {
-    const finalAnalysis = analyzeUrl(resolution.finalUrl);
+    finalAnalysis = analyzeUrl(resolution.finalUrl);
     warnings.push(`ลิงก์นี้พาไปเว็บไซต์อื่น ${resolution.redirects} ครั้ง`);
 
     if (finalAnalysis.hostname !== analysis.hostname) {
@@ -149,7 +156,11 @@ function combineAnalysis(analysis, resolution) {
     }
   }
 
-  return { ...analysis, warnings };
+  return {
+    ...analysis,
+    warnings,
+    domainSignal: finalAnalysis?.domainSignal ?? analysis.domainSignal,
+  };
 }
 
 function createReplyText(text, redirectResults = []) {
@@ -176,7 +187,10 @@ function createReplyText(text, redirectResults = []) {
         analysis.warnings.length > 0
           ? analysis.warnings.map((warning) => `• ${warning}`).join("\n")
           : "• ยังไม่พบสิ่งผิดปกติจากลิงก์ที่ส่งมา";
-      return `${index + 1}. ${analysis.hostname}\n${result}`;
+      const domainSignal = analysis.domainSignal
+        ? `\n• ${analysis.domainSignal.descriptionThai}\n• ${analysis.domainSignal.limitationThai}`
+        : "";
+      return `${index + 1}. ${analysis.hostname}\n${result}${domainSignal}`;
     })
     .join("\n\n");
   const extra =

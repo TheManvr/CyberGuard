@@ -94,6 +94,29 @@ test("does not describe a low-risk AI result as guaranteed safe", () => {
   assert.doesNotMatch(output, /ปลอดภัยแน่นอน/);
 });
 
+test("explains a domain registration group without treating it as proof of safety", () => {
+  const output = formatAiClassification(
+    {
+      category: "legitimate",
+      riskLevel: "low",
+      confidence: 0.8,
+      summaryThai: "ยังไม่พบข้อความหลอกลวง",
+      evidenceThai: [],
+      recommendedAction: "no_action",
+    },
+    {
+      domainSignal: {
+        descriptionThai: "ชื่อเว็บอยู่ในกลุ่มหน่วยงานรัฐไทย",
+        limitationThai: "ส่วนท้ายของชื่อเว็บเพียงอย่างเดียว ยังไม่รับรองว่าทุกหน้าปลอดภัย",
+      },
+    }
+  );
+
+  assert.match(output, /กลุ่มชื่อเว็บ/);
+  assert.match(output, /ยังไม่รับรองว่าทุกหน้า/);
+  assert.doesNotMatch(output, /ปลอดภัยแน่นอน/);
+});
+
 test("identifies the main Google website without guaranteeing every page", () => {
   const output = formatAiClassification(
     {

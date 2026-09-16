@@ -10,6 +10,7 @@ const { checkUrlReputation } = require("./reputationChecker");
 const { fetchWebContent } = require("./webContentFetcher");
 const { researchWebsiteReputation } = require("./webResearcher");
 const { findOfficialDomain } = require("./officialDomainRegistry");
+const { detectDomainRegistrationSignal } = require("./domainTrustSignals");
 
 const SENIOR_VERDICTS = {
   gambling: {
@@ -123,6 +124,10 @@ function formatAiClassification(result, options = {}) {
     known
       ? `🏢 เว็บไซต์: เป็นโดเมนทางการของ ${known.name} (${known.purpose})`
       : null,
+    options.domainSignal
+      ? `🏷️ กลุ่มชื่อเว็บ: ${options.domainSignal.descriptionThai}`
+      : null,
+    options.domainSignal ? `ℹ️ ${options.domainSignal.limitationThai}` : null,
     options.reputation?.status === "dangerous"
       ? `📚 ฐานข้อมูล: พบรายงานอันตรายจาก ${options.reputation.providers.join(" และ ")}`
       : options.reputation?.status === "not_found"
@@ -148,7 +153,7 @@ function formatAiClassification(result, options = {}) {
     .join("\n");
 }
 
-function formatLimitedContentReply(url, content) {
+function formatLimitedContentReply(url, content, domainSignal = null) {
   let hostname = url;
   try {
     hostname = new URL(url).hostname;
@@ -160,6 +165,8 @@ function formatLimitedContentReply(url, content) {
     "🛡️ ผลตรวจเว็บไซต์",
     "📌 สรุป: ⚠️ ยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย",
     `🌐 เว็บไซต์: ${hostname}`,
+    domainSignal ? `🏷️ กลุ่มชื่อเว็บ: ${domainSignal.descriptionThai}` : null,
+    domainSignal ? `ℹ️ ${domainSignal.limitationThai}` : null,
     "🔎 เหตุผล: หน้าเว็บนี้แสดงข้อมูลหลังจากเปิดในเบราว์เซอร์ ทำให้ระบบอ่านข้อความได้เพียงเล็กน้อย",
     "✅ ควรทำตอนนี้:",
     "• อย่าเพิ่งสมัครสมาชิกหรือเติมเงิน",
@@ -264,6 +271,8 @@ async function createCyberGuardReply(text, options = {}) {
     });
   }
 
+  const domainSignal = detectDomainRegistrationSignal(finalUrl);
+
   const researchRequested =
     options.webResearchMode === "always" || /ค้น(?:หา)?(?:ข้อมูล)?เพิ่ม/i.test(text);
   if (
@@ -324,7 +333,11 @@ async function createCyberGuardReply(text, options = {}) {
     !hasAnalysisImage &&
     reputation?.status !== "dangerous"
   ) {
-    const limitedReply = formatLimitedContentReply(finalUrl, content ?? {});
+    const limitedReply = formatLimitedContentReply(
+      finalUrl,
+      content ?? {},
+      domainSignal
+    );
     const databaseNote =
       reputation?.status === "not_found"
         ? "\n📚 ฐานข้อมูล: ยังไม่พบรายงานอันตราย แต่ไม่ได้แปลว่าปลอดภัย"
@@ -339,6 +352,7 @@ async function createCyberGuardReply(text, options = {}) {
       {
         url: finalUrl,
         ...(content ?? {}),
+        domainRegistrationSignal: domainSignal?.aiContext ?? null,
         reputation,
       },
       {
@@ -372,6 +386,7 @@ async function createCyberGuardReply(text, options = {}) {
     );
     return formatAiClassification(result, {
       finalUrl,
+      domainSignal,
       imageUsed: hasAnalysisImage,
       limitedContent,
       renderedWithBrowser: dynamicUsed,

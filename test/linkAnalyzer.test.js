@@ -49,6 +49,14 @@ test("does not claim that a normal link is safe", () => {
   assert.doesNotMatch(reply, /ปลอดภัยแน่นอน/);
 });
 
+test("explains a controlled Thai domain group without promising safety", () => {
+  const reply = createReplyText("https://service.go.th");
+
+  assert.match(reply, /กลุ่มหน่วยงานรัฐไทย/);
+  assert.match(reply, /ยังไม่รับรองว่าทุกหน้า/);
+  assert.doesNotMatch(reply, /ปลอดภัยแน่นอน/);
+});
+
 test("keeps the original acknowledgement for messages without links", () => {
   const reply = createReplyText("สวัสดีครับ");
 
