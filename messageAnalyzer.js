@@ -44,7 +44,7 @@ const SENIOR_VERDICTS = {
     actions: ["เปิดดูข้อมูลทั่วไปได้", "ก่อนกรอกรหัสหรือข้อมูลบัตร ให้ตรวจชื่อเว็บอีกครั้ง"],
   },
   unknown: {
-    headline: "⚠️ ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย",
+    headline: "⚠️ ยังยืนยันความปลอดภัยไม่ได้",
     defaultReason: "ตอนนี้มีข้อมูลไม่พอสำหรับการตัดสิน",
     actions: ["อย่าเพิ่งสมัครหรือโอนเงิน", "อย่ากรอกรหัสผ่าน รหัส OTP หรือข้อมูลบัตร", "ตรวจสอบกับแหล่งทางการก่อน"],
   },
@@ -131,13 +131,13 @@ function formatLimitedContentReply(url, content, domainSignal = null) {
 
   return [
     "🛡️ ผลตรวจเว็บไซต์",
-    "📌 สรุป: ⚠️ ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย",
+    "📌 สรุป: ⚠️ ยังยืนยันความปลอดภัยไม่ได้",
     domainSignal ? `🏷️ ${domainSignal.seniorLabelThai}` : null,
-    "🔎 เหตุผล: ตอนนี้ระบบอ่านข้อมูลของเว็บนี้ได้ไม่ครบ",
+    "🔎 เหตุผล: เว็บนี้แสดงข้อมูลให้ตรวจได้ไม่ครบ",
+    "ℹ️ ไม่ได้แปลว่าเป็นเว็บหลอก แต่ยังไม่ควรถือว่าปลอดภัยครับ",
     "✅ ควรทำตอนนี้:",
     "• อย่าเพิ่งสมัครสมาชิก เติมเงิน หรือโอนเงิน",
     "• อย่ากรอกรหัสผ่าน รหัส OTP หรือข้อมูลบัตร",
-    "• ตรวจสอบกับหน่วยงานหรือร้านค้าทางการก่อนครับ",
   ]
     .filter(Boolean)
     .join("\n");
@@ -238,12 +238,19 @@ async function createCyberGuardReply(text, options = {}) {
 
   const domainSignal = detectDomainRegistrationSignal(finalUrl);
 
+  const contentNeedsMoreEvidence =
+    !content?.text || content.limitedContent || content.text.length < 160;
   const researchRequested =
     options.webResearchMode === "always" || /ค้น(?:หา)?(?:ข้อมูล)?เพิ่ม/i.test(text);
+  // Some modern sites render their content only after JavaScript runs. When that
+  // leaves little readable evidence, a short public-web search gives the
+  // classifier another independent signal instead of immediately stopping.
+  const researchNeededForLimitedContent =
+    contentNeedsMoreEvidence && options.researchWhenContentLimited !== false;
   if (
     aiEnabled &&
     options.webResearchEnabled &&
-    researchRequested &&
+    (researchRequested || researchNeededForLimitedContent) &&
     reputation?.status !== "dangerous"
   ) {
     try {
@@ -289,9 +296,11 @@ async function createCyberGuardReply(text, options = {}) {
   const hasAnalysisImage = Boolean(
     content?.analysisImageUrl || content?.previewImageUrl
   );
+  const hasExternalResearch = Boolean(content?.externalResearch?.trim());
   if (
     limitedContent &&
     !hasAnalysisImage &&
+    !hasExternalResearch &&
     reputation?.status !== "dangerous"
   ) {
     const limitedReply = formatLimitedContentReply(

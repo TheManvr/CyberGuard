@@ -42,6 +42,9 @@ const webResearchEnabled = /^(1|true|yes)$/i.test(
 );
 const webResearchMode =
   process.env.WEB_RESEARCH_MODE === "always" ? "always" : "on_demand";
+const researchWhenContentLimited = !/^(0|false|no)$/i.test(
+  process.env.WEB_RESEARCH_ON_LIMITED_CONTENT ?? "true"
+);
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const openaiModel = process.env.OPENAI_MODEL || DEFAULT_MODEL;
 const webResearchModel = process.env.WEB_RESEARCH_MODEL || openaiModel;
@@ -157,6 +160,7 @@ async function handleEvent(event, options = {}) {
       openPhishEnabled,
       webResearchEnabled: useAi && webResearchEnabled,
       webResearchMode,
+      researchWhenContentLimited,
       webResearchModel,
       maxContentChars,
       openaiApiKey,
@@ -251,6 +255,7 @@ app.get("/health", (_req, res) => {
       openPhish: openPhishEnabled,
       webResearch: webResearchEnabled,
       webResearchMode,
+      researchWhenContentLimited,
     },
   });
 });

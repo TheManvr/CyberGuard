@@ -5,7 +5,9 @@ const {
   createGeneralChatReply,
   getQuickConversationReply,
   IMAGE_REPLY,
+  LINK_CHECK_REPLY,
   STICKER_REPLY,
+  TEXT_CHECK_REPLY,
 } = require("../conversation");
 
 test("greets the user and explains the bot in simple Thai", () => {
@@ -26,6 +28,17 @@ test("does not claim to verify an image", () => {
   assert.match(IMAGE_REPLY, /ยังตรวจรูปภาพโดยตรงไม่ได้/);
   assert.match(IMAGE_REPLY, /ยังไม่สามารถรับรอง/);
   assert.match(IMAGE_REPLY, /ส่งลิงก์นั้นมา/);
+});
+
+test("explains the three rich-menu actions in plain Thai", () => {
+  assert.equal(getQuickConversationReply("ตรวจลิงก์"), LINK_CHECK_REPLY);
+  assert.equal(getQuickConversationReply("ตรวจข้อความ"), TEXT_CHECK_REPLY);
+  assert.equal(
+    getQuickConversationReply("ขอความช่วยเหลือ"),
+    getQuickConversationReply("ช่วยอะไรได้บ้าง")
+  );
+  assert.match(LINK_CHECK_REPLY, /ส่งลิงก์/);
+  assert.match(TEXT_CHECK_REPLY, /คัดลอกข้อความ/);
 });
 
 test("uses AI for a general question without storing the response", async () => {

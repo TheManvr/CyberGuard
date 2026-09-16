@@ -18,6 +18,18 @@ const HELP_REPLY = [
   "ส่งลิงก์เต็มที่ขึ้นต้นด้วย http:// หรือ https:// มาได้เลยครับ",
 ].join("\n");
 
+const LINK_CHECK_REPLY = [
+  "🔗 ส่งลิงก์ที่อยากตรวจมาได้เลยครับ",
+  "ตัวอย่าง: https://example.com",
+  "ผมจะช่วยดูว่าเว็บนั้นมีสิ่งน่ากังวลหรือไม่ครับ",
+].join("\n");
+
+const TEXT_CHECK_REPLY = [
+  "💬 คัดลอกข้อความที่สงสัยมาส่งได้เลยครับ",
+  "เช่น ข้อความชวนโอนเงิน ขอรหัส OTP หรือชวนลงทุน",
+  "กรุณาปิดบังชื่อ เบอร์โทร และข้อมูลส่วนตัวก่อนส่งนะครับ",
+].join("\n");
+
 const STICKER_REPLY = [
   "สวัสดีครับ 😊",
   "มีลิงก์หรือข้อความที่อยากให้ผมช่วยดูไหมครับ",
@@ -40,6 +52,15 @@ function getQuickConversationReply(text) {
     return WELCOME_REPLY;
   }
   if (/^(ช่วยอะไรได้บ้าง|ทำอะไรได้บ้าง|วิธีใช้|ช่วยด้วย|help)$/.test(normalized)) {
+    return HELP_REPLY;
+  }
+  if (/^(ตรวจลิงก์|เช็กลิงก์|ตรวจสอบลิงก์)$/.test(normalized)) {
+    return LINK_CHECK_REPLY;
+  }
+  if (/^(ตรวจข้อความ|เช็กข้อความ|ตรวจสอบข้อความ)$/.test(normalized)) {
+    return TEXT_CHECK_REPLY;
+  }
+  if (/^(ขอความช่วยเหลือ|ขอช่วยเหลือ)$/.test(normalized)) {
     return HELP_REPLY;
   }
   if (/^(ขอบคุณ|ขอบคุณครับ|ขอบคุณค่ะ|thank you|thanks)$/.test(normalized)) {
@@ -102,7 +123,9 @@ async function createGeneralChatReply(text, options = {}) {
 module.exports = {
   HELP_REPLY,
   IMAGE_REPLY,
+  LINK_CHECK_REPLY,
   STICKER_REPLY,
+  TEXT_CHECK_REPLY,
   WELCOME_REPLY,
   createGeneralChatReply,
   getQuickConversationReply,

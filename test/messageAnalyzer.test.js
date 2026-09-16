@@ -189,7 +189,7 @@ test("does not trust a lookalike domain", async () => {
   assert.match(reply, /ควรระวังเว็บนี้/);
 });
 
-test("warns clearly when a dynamic website has too little readable content", async () => {
+test("explains plainly when a website still has too little evidence", async () => {
   const reply = await createCyberGuardReply("https://game.example", {
     aiEnabled: true,
     contentFetcher: async () => ({
@@ -206,9 +206,41 @@ test("warns clearly when a dynamic website has too little readable content", asy
     },
   });
 
-  assert.match(reply, /ตอนนี้ยังบอกไม่ได้ว่าปลอดภัย/);
-  assert.match(reply, /อ่านข้อมูลของเว็บนี้ได้ไม่ครบ/);
+  assert.match(reply, /ยังยืนยันความปลอดภัยไม่ได้/);
+  assert.match(reply, /แสดงข้อมูลให้ตรวจได้ไม่ครบ/);
+  assert.match(reply, /ไม่ได้แปลว่าเป็นเว็บหลอก/);
   assert.match(reply, /อย่าเพิ่งสมัครสมาชิก เติมเงิน หรือโอนเงิน/);
+});
+
+test("uses public-web research before giving up on a limited-content website", async () => {
+  let classifiedContent;
+  const reply = await createCyberGuardReply("https://dynamic.example", {
+    aiEnabled: true,
+    webResearchEnabled: true,
+    webResearchMode: "on_demand",
+    contentFetcher: async () => ({
+      finalUrl: "https://dynamic.example/",
+      content: { title: "Loading", text: "Loading", limitedContent: true },
+    }),
+    webResearcher: async () => ({
+      summary: "พบข้อมูลสาธารณะว่าเว็บไซต์นี้มีบริการคาสิโนออนไลน์",
+    }),
+    classifier: async (content) => {
+      classifiedContent = content;
+      return {
+        category: "gambling",
+        riskLevel: "high",
+        confidence: 0.9,
+        summaryThai: "พบข้อมูลว่าเว็บไซต์นี้เกี่ยวกับคาสิโนออนไลน์",
+        evidenceThai: [],
+        recommendedAction: "block",
+      };
+    },
+  });
+
+  assert.match(classifiedContent.externalResearch, /คาสิโนออนไลน์/);
+  assert.match(reply, /ควรหลีกเลี่ยงเว็บนี้/);
+  assert.doesNotMatch(reply, /แสดงข้อมูลให้ตรวจได้ไม่ครบ/);
 });
 
 test("offers a safe preview image when the checked page supplies one", async () => {

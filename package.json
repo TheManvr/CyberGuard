@@ -9,7 +9,9 @@
     "dev": "node --watch index.js",
     "test": "node --test",
     "eval:ai": "node scripts/evaluate-ai.js",
-    "eval:ai:check": "node scripts/evaluate-ai.js --dry-run"
+    "eval:ai:check": "node scripts/evaluate-ai.js --dry-run",
+    "menu:image": "node scripts/generate-rich-menu-image.js",
+    "menu:setup": "node scripts/setup-rich-menu.js"
   },
   "engines": {
     "node": ">=22"
