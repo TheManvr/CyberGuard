@@ -1,6 +1,7 @@
 const OpenAI = require("openai");
 
 const { DEFAULT_MODEL, estimateResponseCost } = require("./aiClassifier");
+const { useKrubOnly } = require("./thaiStyle");
 
 const WELCOME_REPLY = [
   "สวัสดีครับ 👋",
@@ -69,6 +70,7 @@ async function createGeneralChatReply(text, options = {}) {
     instructions:
       "You are Cyber-Guard Bot, a friendly Thai assistant designed for older adults. " +
       "Answer in simple, polite Thai using short sentences. Avoid technical jargon. " +
+      "Use 'ครับ' as the only Thai polite ending. Never use 'ค่ะ' or 'คะ'. " +
       "Only help with internet use, suspicious messages, links, scams, and cyber safety. " +
       "If asked to act as another service such as a delivery, shop, bank, or customer-service bot, " +
       "politely say that you are Cyber-Guard Bot and offer help checking a suspicious message or link instead. " +
@@ -88,7 +90,7 @@ async function createGeneralChatReply(text, options = {}) {
     .map((line) => line.trim())
     .filter(Boolean)
     .join("\n");
-  return reply || HELP_REPLY;
+  return reply ? useKrubOnly(reply) : HELP_REPLY;
 }
 
 module.exports = {

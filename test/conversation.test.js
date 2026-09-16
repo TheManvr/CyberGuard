@@ -53,5 +53,6 @@ test("uses AI for a general question without storing the response", async () => 
   assert.equal(request.safety_identifier, "hashed-user-id");
   assert.match(request.instructions, /Only help with internet use/);
   assert.match(request.instructions, /delivery, shop, bank/);
+  assert.match(request.instructions, /Never use 'ค่ะ' or 'คะ'/);
   assert.equal(usage.inputTokens, 50);
 });

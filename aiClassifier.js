@@ -1,6 +1,7 @@
 const OpenAI = require("openai");
 const { zodTextFormat } = require("openai/helpers/zod");
 const { z } = require("zod");
+const { useKrubOnly } = require("./thaiStyle");
 
 const DEFAULT_MODEL = "gpt-5.4-nano";
 const PROMPT_VERSION = "2026-09-15.2";
@@ -123,6 +124,7 @@ async function classifyWebsiteWithUsage(content, options = {}) {
           "Use unknown when evidence is insufficient. The reader may be an older adult. " +
           "Write summaryThai and evidenceThai in simple, short Thai. Do not use technical words " +
           "such as HTML, URL, domain, redirect, IP address, protocol, model, confidence, or phishing. " +
+          "Use 'ครับ' as the only Thai polite ending. Never use 'ค่ะ' or 'คะ'. " +
           "Do not promise that a website is completely safe.",
       },
       {
@@ -143,7 +145,11 @@ async function classifyWebsiteWithUsage(content, options = {}) {
 
   const model = response.model ?? options.model ?? DEFAULT_MODEL;
   return {
-    classification: response.output_parsed,
+    classification: {
+      ...response.output_parsed,
+      summaryThai: useKrubOnly(response.output_parsed.summaryThai),
+      evidenceThai: response.output_parsed.evidenceThai.map(useKrubOnly),
+    },
     model,
     usage: response.usage ?? null,
     cost: estimateResponseCost(response.usage, model),
