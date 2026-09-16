@@ -16,8 +16,9 @@ test("greets the user and explains the bot in simple Thai", () => {
 });
 
 test("has a friendly reply for a received sticker", () => {
-  assert.match(STICKER_REPLY, /ได้รับสติกเกอร์/);
-  assert.match(STICKER_REPLY, /ส่งมาให้ผมช่วยตรวจ/);
+  assert.match(STICKER_REPLY, /สวัสดีครับ/);
+  assert.match(STICKER_REPLY, /อยากให้ผมช่วยดู/);
+  assert.doesNotMatch(STICKER_REPLY, /สติกเกอร์/);
 });
 
 test("uses AI for a general question without storing the response", async () => {
