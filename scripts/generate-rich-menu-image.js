@@ -4,8 +4,8 @@ const { chromium } = require("playwright-core");
 const { findChromeExecutable } = require("../dynamicContentFetcher");
 
 const assetDirectory = path.join(__dirname, "..", "public", "rich-menu");
-const sourcePath = path.join(assetDirectory, "cyber-guard-theme-v2.jpg");
-const outputPath = path.join(assetDirectory, "cyber-guard-menu-v4.jpg");
+const sourcePath = path.join(assetDirectory, "cyber-guard-menu-v5.png");
+const outputPath = path.join(assetDirectory, "cyber-guard-menu-v5.jpg");
 
 function createMarkup(sourceImage) {
   return `<!doctype html>
@@ -21,8 +21,8 @@ function createMarkup(sourceImage) {
         color: #073b70;
         font-family: Tahoma, "Leelawadee UI", sans-serif;
       }
-      .art { display: block; width: 1250px; height: 843px; }
-      .menu { position: absolute; inset: 0; display: flex; padding-top: 449px; }
+      .art { display: block; width: 1250px; height: 843px; object-fit: cover; }
+      .menu { display: none; }
       .item {
         width: 33.333%;
         display: flex;
