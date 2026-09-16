@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   createGeneralChatReply,
   getQuickConversationReply,
+  IMAGE_REPLY,
   STICKER_REPLY,
 } = require("../conversation");
 
@@ -19,6 +20,12 @@ test("has a friendly reply for a received sticker", () => {
   assert.match(STICKER_REPLY, /สวัสดีครับ/);
   assert.match(STICKER_REPLY, /อยากให้ผมช่วยดู/);
   assert.doesNotMatch(STICKER_REPLY, /สติกเกอร์/);
+});
+
+test("does not claim to verify an image", () => {
+  assert.match(IMAGE_REPLY, /ยังตรวจรูปภาพโดยตรงไม่ได้/);
+  assert.match(IMAGE_REPLY, /ยังไม่สามารถรับรอง/);
+  assert.match(IMAGE_REPLY, /ส่งลิงก์นั้นมา/);
 });
 
 test("uses AI for a general question without storing the response", async () => {

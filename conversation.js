@@ -23,6 +23,12 @@ const STICKER_REPLY = [
   "มีลิงก์หรือข้อความที่อยากให้ผมช่วยดูไหมครับ",
 ].join("\n");
 
+const IMAGE_REPLY = [
+  "ขอแจ้งก่อนนะครับ: ตอนนี้ผมยังตรวจรูปภาพโดยตรงไม่ได้ครับ",
+  "จึงยังไม่สามารถรับรองได้ว่าข้อความหรือโฆษณาในรูปปลอดภัยครับ",
+  "หากในรูปมีลิงก์ ให้ส่งลิงก์นั้นมา หรือพิมพ์ข้อความสำคัญมาให้ผมช่วยดูได้ครับ",
+].join("\n");
+
 function normalizeMessage(text) {
   return text.trim().toLowerCase().replace(/[.!?。！？]+$/g, "").trim();
 }
@@ -95,6 +101,7 @@ async function createGeneralChatReply(text, options = {}) {
 
 module.exports = {
   HELP_REPLY,
+  IMAGE_REPLY,
   STICKER_REPLY,
   WELCOME_REPLY,
   createGeneralChatReply,

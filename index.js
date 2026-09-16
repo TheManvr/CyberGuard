@@ -7,6 +7,7 @@ const line = require("@line/bot-sdk");
 const { DEFAULT_MODEL } = require("./aiClassifier");
 const {
   HELP_REPLY,
+  IMAGE_REPLY,
   STICKER_REPLY,
   createGeneralChatReply,
   getQuickConversationReply,
@@ -103,6 +104,16 @@ async function handleEvent(event, options = {}) {
     });
 
     logger.info("sticker_processed");
+    return result;
+  }
+
+  if (event.message.type === "image") {
+    const result = await client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ type: "text", text: IMAGE_REPLY }],
+    });
+
+    logger.info("image_processed");
     return result;
   }
 
