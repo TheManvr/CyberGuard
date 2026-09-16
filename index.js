@@ -7,6 +7,7 @@ const line = require("@line/bot-sdk");
 const { DEFAULT_MODEL } = require("./aiClassifier");
 const {
   HELP_REPLY,
+  STICKER_REPLY,
   createGeneralChatReply,
   getQuickConversationReply,
 } = require("./conversation");
@@ -91,7 +92,21 @@ function getPublicBaseUrl(req) {
 }
 
 async function handleEvent(event, options = {}) {
-  if (event.type !== "message" || event.message.type !== "text") {
+  if (event.type !== "message") {
+    return null;
+  }
+
+  if (event.message.type === "sticker") {
+    const result = await client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ type: "text", text: STICKER_REPLY }],
+    });
+
+    logger.info("sticker_processed");
+    return result;
+  }
+
+  if (event.message.type !== "text") {
     return null;
   }
 

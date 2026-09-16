@@ -17,6 +17,11 @@ const HELP_REPLY = [
   "ส่งลิงก์เต็มที่ขึ้นต้นด้วย http:// หรือ https:// มาได้เลยครับ",
 ].join("\n");
 
+const STICKER_REPLY = [
+  "ได้รับสติกเกอร์แล้วครับ 😊",
+  "ถ้ามีลิงก์หรือข้อความที่ไม่แน่ใจ ส่งมาให้ผมช่วยตรวจได้เลยครับ",
+].join("\n");
+
 function normalizeMessage(text) {
   return text.trim().toLowerCase().replace(/[.!?。！？]+$/g, "").trim();
 }
@@ -88,6 +93,7 @@ async function createGeneralChatReply(text, options = {}) {
 
 module.exports = {
   HELP_REPLY,
+  STICKER_REPLY,
   WELCOME_REPLY,
   createGeneralChatReply,
   getQuickConversationReply,

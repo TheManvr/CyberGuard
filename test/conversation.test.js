@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   createGeneralChatReply,
   getQuickConversationReply,
+  STICKER_REPLY,
 } = require("../conversation");
 
 test("greets the user and explains the bot in simple Thai", () => {
@@ -12,6 +13,11 @@ test("greets the user and explains the bot in simple Thai", () => {
   assert.match(reply, /Cyber-Guard Bot/);
   assert.match(reply, /ส่งลิงก์หรือข้อความน่าสงสัย/);
   assert.match(reply, /รหัส OTP/);
+});
+
+test("has a friendly reply for a received sticker", () => {
+  assert.match(STICKER_REPLY, /ได้รับสติกเกอร์/);
+  assert.match(STICKER_REPLY, /ส่งมาให้ผมช่วยตรวจ/);
 });
 
 test("uses AI for a general question without storing the response", async () => {
