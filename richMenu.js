@@ -1,4 +1,4 @@
-const RICH_MENU_NAME = "Cyber-Guard Main Menu v3";
+const RICH_MENU_NAME = "Cyber-Guard Main Menu v4";
 const RICH_MENU_IMAGE_TYPE = "image/jpeg";
 
 const MENU_ACTIONS = [

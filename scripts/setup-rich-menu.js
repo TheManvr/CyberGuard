@@ -10,7 +10,7 @@ const imagePath = path.join(
   "..",
   "public",
   "rich-menu",
-  "cyber-guard-menu-v3.jpg"
+  "cyber-guard-menu-v4.jpg"
 );
 const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 

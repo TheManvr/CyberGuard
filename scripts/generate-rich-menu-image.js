@@ -5,7 +5,7 @@ const { findChromeExecutable } = require("../dynamicContentFetcher");
 
 const assetDirectory = path.join(__dirname, "..", "public", "rich-menu");
 const sourcePath = path.join(assetDirectory, "cyber-guard-theme-v2.jpg");
-const outputPath = path.join(assetDirectory, "cyber-guard-menu-v3.jpg");
+const outputPath = path.join(assetDirectory, "cyber-guard-menu-v4.jpg");
 
 function createMarkup(sourceImage) {
   return `<!doctype html>
@@ -18,8 +18,8 @@ function createMarkup(sourceImage) {
       body {
         position: relative;
         background: #e9f8ff;
-        color: #093b75;
-        font-family: "Noto Sans Thai", "Leelawadee UI", Arial, sans-serif;
+        color: #073b70;
+        font-family: Tahoma, "Leelawadee UI", sans-serif;
       }
       .art { display: block; width: 1250px; height: 843px; }
       .menu { position: absolute; inset: 0; display: flex; padding-top: 449px; }
@@ -29,23 +29,42 @@ function createMarkup(sourceImage) {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 39px 20px 0;
-        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.72);
+        padding: 74px 20px 0;
       }
-      .icon { font-size: 42px; line-height: 1; margin-bottom: 13px; }
-      .title { font-size: 32px; font-weight: 800; line-height: 1.2; }
-      .desc { margin-top: 13px; font-size: 18px; font-weight: 700; line-height: 1.35; }
-      .link .title, .link .desc { color: #075f9f; }
-      .text .title, .text .desc { color: #07508d; }
-      .help .title, .help .desc { color: #064070; }
+      .accent {
+        width: 78px;
+        height: 8px;
+        margin-bottom: 22px;
+        border-radius: 4px;
+        background: #00d9ff;
+        box-shadow: 0 0 14px rgba(0, 217, 255, 0.9);
+      }
+      .text .accent { background: #3698ff; box-shadow: 0 0 14px rgba(54, 152, 255, 0.9); }
+      .help .accent { background: #30e4ba; box-shadow: 0 0 14px rgba(48, 228, 186, 0.9); }
+      .title {
+        color: #ffffff;
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1.2;
+        -webkit-text-stroke: 1.4px #073b70;
+        text-shadow: 0 4px 0 #073b70, 0 7px 16px rgba(2, 47, 90, 0.35);
+      }
+      .desc {
+        margin-top: 22px;
+        color: #07508d;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.45;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      }
     </style>
   </head>
   <body>
     <img class="art" src="data:image/jpeg;base64,${sourceImage}" alt="Cyber-Guard Bot">
     <main class="menu">
-      <section class="item link"><div class="icon">🔗</div><div class="title">ตรวจลิงก์</div><div class="desc">แตะแล้ววางลิงก์<br>ที่ต้องการตรวจ</div></section>
-      <section class="item text"><div class="icon">💬</div><div class="title">ตรวจข้อความ</div><div class="desc">ส่งข้อความน่าสงสัย<br>มาให้ผมช่วยอ่าน</div></section>
-      <section class="item help"><div class="icon">🆘</div><div class="title">ขอความช่วยเหลือ</div><div class="desc">ดูวิธีใช้งาน<br>และคำแนะนำ</div></section>
+      <section class="item link"><div class="accent"></div><div class="title">ตรวจลิงก์</div><div class="desc">แตะแล้ววางลิงก์<br>ที่ต้องการตรวจ</div></section>
+      <section class="item text"><div class="accent"></div><div class="title">ตรวจข้อความ</div><div class="desc">ส่งข้อความน่าสงสัย<br>มาให้ผมช่วยอ่าน</div></section>
+      <section class="item help"><div class="accent"></div><div class="title">ขอความช่วยเหลือ</div><div class="desc">ดูวิธีใช้งาน<br>และคำแนะนำ</div></section>
     </main>
   </body>
 </html>`;
