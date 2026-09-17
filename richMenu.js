@@ -1,4 +1,4 @@
-const RICH_MENU_NAME = "Cyber-Guard Main Menu v5";
+const RICH_MENU_NAME = "Cyber-Guard Main Menu v6";
 const RICH_MENU_IMAGE_TYPE = "image/jpeg";
 
 const MENU_ACTIONS = [
@@ -15,8 +15,8 @@ const MENU_ACTIONS = [
     action: { type: "message", text: "ตรวจข้อความ" },
   },
   {
-    label: "ขอความช่วยเหลือ",
-    action: { type: "message", text: "ขอความช่วยเหลือ" },
+    label: "วิธีใช้งาน",
+    action: { type: "message", text: "วิธีใช้งาน" },
   },
 ];
 

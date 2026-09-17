@@ -4,8 +4,8 @@ const { chromium } = require("playwright-core");
 const { findChromeExecutable } = require("../dynamicContentFetcher");
 
 const assetDirectory = path.join(__dirname, "..", "public", "rich-menu");
-const sourcePath = path.join(assetDirectory, "cyber-guard-menu-v5.png");
-const outputPath = path.join(assetDirectory, "cyber-guard-menu-v5.jpg");
+const sourcePath = path.join(assetDirectory, "cyber-guard-menu-v6.png");
+const outputPath = path.join(assetDirectory, "cyber-guard-menu-v6.jpg");
 
 function createMarkup(sourceImage) {
   return `<!doctype html>

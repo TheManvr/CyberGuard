@@ -51,7 +51,7 @@ function getQuickConversationReply(text) {
   if (/^(สวัสดี|สวัสดีครับ|สวัสดีค่ะ|หวัดดี|ดีครับ|ดีค่ะ|hello|hi)$/.test(normalized)) {
     return WELCOME_REPLY;
   }
-  if (/^(ช่วยอะไรได้บ้าง|ทำอะไรได้บ้าง|วิธีใช้|ช่วยด้วย|help)$/.test(normalized)) {
+  if (/^(ช่วยอะไรได้บ้าง|ทำอะไรได้บ้าง|วิธีใช้|วิธีใช้งาน|ช่วยด้วย|help)$/.test(normalized)) {
     return HELP_REPLY;
   }
   if (/^(ตรวจลิงก์|เช็กลิงก์|ตรวจสอบลิงก์)$/.test(normalized)) {

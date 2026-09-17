@@ -16,7 +16,7 @@ test("defines three full-height menu areas for the primary user actions", () => 
   assert.equal(request.areas.length, 3);
   assert.deepEqual(
     request.areas.map((area) => area.action.label),
-    ["ตรวจลิงก์", "ตรวจข้อความ", "ขอความช่วยเหลือ"]
+    ["ตรวจลิงก์", "ตรวจข้อความ", "วิธีใช้งาน"]
   );
   assert.deepEqual(request.areas[0].action, {
     type: "postback",
@@ -26,7 +26,7 @@ test("defines three full-height menu areas for the primary user actions", () => 
   });
   assert.deepEqual(
     request.areas.slice(1).map((area) => area.action.text),
-    ["ตรวจข้อความ", "ขอความช่วยเหลือ"]
+    ["ตรวจข้อความ", "วิธีใช้งาน"]
   );
   assert.equal(
     request.areas.reduce((total, area) => total + area.bounds.width, 0),

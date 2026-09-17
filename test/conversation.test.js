@@ -34,7 +34,7 @@ test("explains the three rich-menu actions in plain Thai", () => {
   assert.equal(getQuickConversationReply("ตรวจลิงก์"), LINK_CHECK_REPLY);
   assert.equal(getQuickConversationReply("ตรวจข้อความ"), TEXT_CHECK_REPLY);
   assert.equal(
-    getQuickConversationReply("ขอความช่วยเหลือ"),
+    getQuickConversationReply("วิธีใช้งาน"),
     getQuickConversationReply("ช่วยอะไรได้บ้าง")
   );
   assert.match(LINK_CHECK_REPLY, /ส่งลิงก์/);
