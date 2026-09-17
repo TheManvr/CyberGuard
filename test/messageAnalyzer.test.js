@@ -210,6 +210,22 @@ test("explains plainly when a website still has too little evidence", async () =
   assert.match(reply, /แสดงข้อมูลให้ตรวจได้ไม่ครบ/);
   assert.match(reply, /ไม่ได้แปลว่าเป็นเว็บหลอก/);
   assert.match(reply, /อย่าเพิ่งสมัครสมาชิก เติมเงิน หรือโอนเงิน/);
+  assert.match(reply, /ตรวจเสร็จแล้ว/);
+});
+
+test("does not repeat website URLs when content cannot be read", async () => {
+  const reply = await createCyberGuardReply("https://short.example/a", {
+    aiEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://video.example/watch",
+      redirects: 1,
+      content: { text: "" },
+    }),
+  });
+
+  assert.match(reply, /ตรวจเสร็จแล้ว/);
+  assert.doesNotMatch(reply, /https:\/\//);
+  assert.doesNotMatch(reply, /short\.example/);
 });
 
 test("uses public-web research before giving up on a limited-content website", async () => {

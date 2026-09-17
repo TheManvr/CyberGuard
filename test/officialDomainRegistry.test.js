@@ -18,6 +18,10 @@ test("matches an exact official domain and an allowed subdomain", () => {
     findOfficialDomain("https://maps.google.com/").organization,
     "Google"
   );
+  assert.equal(
+    findOfficialDomain("https://vt.tiktok.com/example/").organization,
+    "TikTok"
+  );
 });
 
 test("does not trust a lookalike or domain used as a path", () => {

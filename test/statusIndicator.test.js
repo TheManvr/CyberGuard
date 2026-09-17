@@ -17,7 +17,7 @@ test("creates HTTPS image messages for each verdict", () => {
   });
   assert.match(
     buildStatusImageMessage("caution", "https://cyberguard.sbycom.com").originalContentUrl,
-    /not-sure\.png$/
+    /not-sure-complete\.png$/
   );
   assert.match(
     buildStatusImageMessage("likely_safe", "https://cyberguard.sbycom.com")

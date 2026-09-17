@@ -71,6 +71,7 @@ function knownWebsite(finalUrl) {
 
 function formatVerifiedOfficialReply(official, options = {}) {
   return [
+    "✅ ตรวจเสร็จแล้วครับ",
     "🛡️ ผลตรวจเว็บไซต์",
     `📌 สรุป: ✅ เป็นเว็บไซต์ทางการของ ${official.organization}`,
     `📖 ใช้สำหรับ: ${official.purposeThai}`,
@@ -98,6 +99,7 @@ function formatAiClassification(result, options = {}) {
   const reason = shortenForSenior(result.summaryThai || verdict.defaultReason);
 
   return [
+    "✅ ตรวจเสร็จแล้วครับ",
     "🛡️ ผลตรวจเว็บไซต์",
     `📌 สรุป: ${verdict.headline}`,
     known
@@ -130,6 +132,7 @@ function formatLimitedContentReply(url, content, domainSignal = null) {
   }
 
   return [
+    "✅ ตรวจเสร็จแล้วครับ",
     "🛡️ ผลตรวจเว็บไซต์",
     "📌 สรุป: ⚠️ ยังยืนยันความปลอดภัยไม่ได้",
     domainSignal ? `🏷️ ${domainSignal.seniorLabelThai}` : null,
@@ -287,8 +290,13 @@ async function createCyberGuardReply(text, options = {}) {
   }
 
   if (!content?.text && reputation?.status !== "dangerous") {
+    const limitedReply = formatLimitedContentReply(
+      finalUrl,
+      content ?? {},
+      domainSignal
+    );
     reportStatus(options, "caution");
-    return `${basicReply}\n\n⚠️ ระบบอ่านเนื้อหาของเว็บไซต์นี้ไม่ได้ จึงยังยืนยันไม่ได้ว่าเว็บนี้ปลอดภัย`;
+    return limitedReply;
   }
 
   const limitedContent =

@@ -8,8 +8,8 @@ const STATUS_ASSETS = {
     preview: "likely-safe-preview.jpg",
   },
   caution: {
-    original: "not-sure.png",
-    preview: "not-sure-preview.jpg",
+    original: "not-sure-complete.png",
+    preview: "not-sure-complete-preview.jpg",
   },
   danger: {
     original: "not-safe.png",

@@ -20,6 +20,16 @@
     "status": "verified"
   },
   {
+    "domain": "tiktok.com",
+    "organization": "TikTok",
+    "purposeThai": "แพลตฟอร์มวิดีโอสั้นของ TikTok",
+    "category": "media",
+    "officialSource": "https://www.tiktok.com/about/?lang=en",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
     "domain": "apple.com",
     "organization": "Apple",
     "purposeThai": "เว็บไซต์หลัก ผลิตภัณฑ์ และบริการช่วยเหลือของ Apple",

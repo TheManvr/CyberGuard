@@ -17,6 +17,7 @@ const { createLogger } = require("./logger");
 const { createCyberGuardReply } = require("./messageAnalyzer");
 const { createRateLimiter } = require("./rateLimiter");
 const { buildStatusImageMessage } = require("./statusIndicator");
+const { getRecentAnalysisReply, rememberAnalysis } = require("./analysisContext");
 const { version } = require("./package.json");
 
 const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -130,9 +131,12 @@ async function handleEvent(event, options = {}) {
     event.source?.roomId ??
     "unknown-source";
   const hasUrl = extractUrls(event.message.text).length > 0;
+  const analysisFollowUp = hasUrl
+    ? null
+    : getRecentAnalysisReply(sourceId, event.message.text);
   const quickReply = hasUrl
     ? null
-    : getQuickConversationReply(event.message.text);
+    : analysisFollowUp ?? getQuickConversationReply(event.message.text);
   const needsAi = aiEnabled && (hasUrl || !quickReply);
   const rateLimit = needsAi
     ? aiRateLimiter.check(sourceId)
@@ -174,6 +178,7 @@ async function handleEvent(event, options = {}) {
         statusIndicator = status;
       },
     });
+    rememberAnalysis(sourceId, statusIndicator ?? "caution");
   } else if (quickReply) {
     replyText = quickReply;
   } else if (useAi) {
