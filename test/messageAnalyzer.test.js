@@ -106,6 +106,27 @@ test("treats an unencrypted HTTP link as caution even when its content looks saf
   assert.doesNotMatch(reply, /ค่อนข้างปลอดภัย/);
 });
 
+test("calls out a hostname that imitates an official domain", async () => {
+  let status;
+  const reply = await createCyberGuardReply("https://google.com.fake.example/", {
+    aiEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "https://google.com.fake.example/",
+      content: { text: "หน้าเว็บทั่วไป ".repeat(20) },
+    }),
+    classifier: async () => {
+      throw new Error("The classifier should not run for a clear lookalike");
+    },
+    onStatus: (value) => {
+      status = value.status;
+    },
+  });
+
+  assert.equal(status, "caution");
+  assert.match(reply, /ชื่อเว็บคล้าย Google แต่ไม่ใช่เว็บของ Google/);
+  assert.match(reply, /อย่ากรอกรหัสผ่าน/);
+});
+
 test("does not describe a low-risk AI result as guaranteed safe", () => {
   const output = formatAiClassification({
     category: "legitimate",
@@ -211,7 +232,7 @@ test("does not trust a lookalike domain", async () => {
   });
 
   assert.doesNotMatch(reply, /เป็นเว็บไซต์ทางการ/);
-  assert.match(reply, /ควรระวังเว็บนี้/);
+  assert.match(reply, /ชื่อเว็บคล้าย Google แต่ไม่ใช่เว็บของ Google/);
 });
 
 test("explains plainly when a website still has too little evidence", async () => {

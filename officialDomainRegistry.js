@@ -55,8 +55,32 @@ function findOfficialDomain(value) {
   }
 }
 
+function findOfficialDomainLookalike(value) {
+  try {
+    const url = value instanceof URL ? value : new URL(value);
+    const hostname = normalizeHostname(url.hostname);
+
+    const isOfficial = registry.some(
+      (item) =>
+        hostname === item.domain ||
+        (item.allowSubdomains && hostname.endsWith(`.${item.domain}`))
+    );
+    if (isOfficial) return null;
+
+    const paddedHostname = `.${hostname}.`;
+    const entry = registry.find((item) =>
+      paddedHostname.includes(`.${item.domain}.`)
+    );
+
+    return entry ? { ...entry, matchedHostname: hostname } : null;
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
   findOfficialDomain,
+  findOfficialDomainLookalike,
   officialDomains: registry,
   validateRegistry,
 };

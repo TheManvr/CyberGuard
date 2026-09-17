@@ -9,7 +9,10 @@ const { resolveRedirectChain } = require("./redirectResolver");
 const { checkUrlReputation } = require("./reputationChecker");
 const { fetchWebContent } = require("./webContentFetcher");
 const { researchWebsiteReputation } = require("./webResearcher");
-const { findOfficialDomain } = require("./officialDomainRegistry");
+const {
+  findOfficialDomain,
+  findOfficialDomainLookalike,
+} = require("./officialDomainRegistry");
 const { detectDomainRegistrationSignal } = require("./domainTrustSignals");
 
 const SENIOR_VERDICTS = {
@@ -173,6 +176,25 @@ function formatUnencryptedHttpReply(finalUrl) {
   ].join("\n");
 }
 
+function formatOfficialLookalikeReply(official, finalUrl) {
+  let hostname = "ลิงก์นี้";
+  try {
+    hostname = new URL(finalUrl).hostname;
+  } catch {
+    // Use the simple fallback when the URL cannot be parsed.
+  }
+
+  return [
+    "✅ ตรวจเสร็จแล้วครับ",
+    "🛡️ ผลตรวจเว็บไซต์",
+    `📌 สรุป: ⚠️ ชื่อเว็บคล้าย ${official.organization} แต่ไม่ใช่เว็บของ ${official.organization}`,
+    `🔎 เหตุผล: ${hostname} ไม่ได้ลงท้ายด้วย ${official.domain}`,
+    "✅ ควรทำตอนนี้:",
+    "• อย่าเข้าสู่ระบบ อย่ากรอกรหัสผ่าน หรือรหัส OTP",
+    `• หากต้องใช้ ${official.organization} ให้พิมพ์ ${official.domain} เอง หรือเข้าจากแอปทางการ`,
+  ].join("\n");
+}
+
 async function createCyberGuardReply(text, options = {}) {
   const urls = extractUrls(text).slice(0, 3);
   const aiEnabled = options.aiEnabled === true;
@@ -274,6 +296,16 @@ async function createCyberGuardReply(text, options = {}) {
       reputation,
       redirects: redirectResults[0]?.redirects ?? 0,
     });
+  }
+
+  const officialLookalike = findOfficialDomainLookalike(finalUrl);
+  if (officialLookalike && reputation?.status !== "dangerous") {
+    options.onAnalysis?.({
+      status: "official_domain_lookalike",
+      officialDomain: officialLookalike.domain,
+    });
+    reportStatus(options, "caution");
+    return formatOfficialLookalikeReply(officialLookalike, finalUrl);
   }
 
   const domainSignal = detectDomainRegistrationSignal(finalUrl);
@@ -418,6 +450,7 @@ module.exports = {
   createCyberGuardReply,
   formatAiClassification,
   formatLimitedContentReply,
+  formatOfficialLookalikeReply,
   formatUnencryptedHttpReply,
   formatVerifiedOfficialReply,
   knownWebsite,

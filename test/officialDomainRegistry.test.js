@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const {
   findOfficialDomain,
+  findOfficialDomainLookalike,
   officialDomains,
   validateRegistry,
 } = require("../officialDomainRegistry");
@@ -38,6 +39,18 @@ test("does not trust a lookalike or domain used as a path", () => {
   assert.equal(findOfficialDomain("https://g00gle.com/"), null);
   assert.equal(findOfficialDomain("https://shopee.co.th.fake.example/"), null);
   assert.equal(findOfficialDomain("https://scb.co.th.fake.example/"), null);
+});
+
+test("identifies an official name embedded in a lookalike hostname", () => {
+  assert.equal(
+    findOfficialDomainLookalike("https://google.com.fake.example/").organization,
+    "Google"
+  );
+  assert.equal(
+    findOfficialDomainLookalike("https://login.scb.co.th.fake.example/").organization,
+    "ธนาคารไทยพาณิชย์"
+  );
+  assert.equal(findOfficialDomainLookalike("https://maps.google.com/"), null);
 });
 
 test("requires HTTPS before returning a verified match", () => {
