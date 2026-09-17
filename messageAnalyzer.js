@@ -146,6 +146,33 @@ function formatLimitedContentReply(url, content, domainSignal = null) {
     .join("\n");
 }
 
+function usesUnencryptedHttp(value) {
+  try {
+    return new URL(value).protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function formatUnencryptedHttpReply(finalUrl) {
+  let hostname = "เว็บไซต์นี้";
+  try {
+    hostname = new URL(finalUrl).hostname;
+  } catch {
+    // Use the simple fallback when the URL cannot be parsed.
+  }
+
+  return [
+    "✅ ตรวจเสร็จแล้วครับ",
+    "🛡️ ผลตรวจเว็บไซต์",
+    "📌 สรุป: ⚠️ ลิงก์นี้ไม่เข้ารหัส",
+    `🔎 เหตุผล: ${hostname} ใช้ http:// ข้อมูลที่รับส่งอาจถูกผู้อื่นดักอ่านหรือแก้ไขได้`,
+    "✅ ควรทำตอนนี้:",
+    "• เปิดดูข้อมูลทั่วไปได้อย่างระวัง",
+    "• อย่ากรอกรหัสผ่าน รหัส OTP ข้อมูลบัตร หรือโอนเงินผ่านลิงก์นี้",
+  ].join("\n");
+}
+
 async function createCyberGuardReply(text, options = {}) {
   const urls = extractUrls(text).slice(0, 3);
   const aiEnabled = options.aiEnabled === true;
@@ -223,6 +250,16 @@ async function createCyberGuardReply(text, options = {}) {
         errorCode: error.code ?? "REPUTATION_ERROR",
       });
     }
+  }
+
+  const unencryptedHttp = usesUnencryptedHttp(urls[0]) || usesUnencryptedHttp(finalUrl);
+  if (unencryptedHttp && reputation?.status !== "dangerous") {
+    options.onAnalysis?.({
+      status: "unencrypted_http",
+      finalUrl,
+    });
+    reportStatus(options, "caution");
+    return formatUnencryptedHttpReply(finalUrl);
   }
 
   const official = findOfficialDomain(finalUrl);
@@ -381,6 +418,7 @@ module.exports = {
   createCyberGuardReply,
   formatAiClassification,
   formatLimitedContentReply,
+  formatUnencryptedHttpReply,
   formatVerifiedOfficialReply,
   knownWebsite,
 };

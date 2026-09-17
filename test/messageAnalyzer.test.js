@@ -81,6 +81,31 @@ test("uses the likely-safe status only for a low-risk AI result", async () => {
   assert.equal(status, "likely_safe");
 });
 
+test("treats an unencrypted HTTP link as caution even when its content looks safe", async () => {
+  let status;
+  const reply = await createCyberGuardReply("http://example.com/", {
+    aiEnabled: true,
+    contentFetcher: async () => ({
+      finalUrl: "http://example.com/",
+      content: { text: "ข้อมูลทั่วไปของเว็บไซต์ ".repeat(20) },
+    }),
+    classifier: async () => ({
+      category: "legitimate",
+      riskLevel: "low",
+      confidence: 0.8,
+      summaryThai: "ยังไม่พบข้อความหลอกลวง",
+    }),
+    onStatus: (value) => {
+      status = value.status;
+    },
+  });
+
+  assert.equal(status, "caution");
+  assert.match(reply, /ลิงก์นี้ไม่เข้ารหัส/);
+  assert.match(reply, /อย่ากรอกรหัสผ่าน รหัส OTP/);
+  assert.doesNotMatch(reply, /ค่อนข้างปลอดภัย/);
+});
+
 test("does not describe a low-risk AI result as guaranteed safe", () => {
   const output = formatAiClassification({
     category: "legitimate",
