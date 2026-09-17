@@ -1,19 +1,19 @@
 const STATUS_ASSETS = {
   verified_official: {
-    original: "safe.png",
-    preview: "safe-preview.jpg",
+    original: "safe-card.png",
+    preview: "safe-card-preview.jpg",
   },
   likely_safe: {
-    original: "likely-safe.png",
-    preview: "likely-safe-preview.jpg",
+    original: "likely-safe-card.png",
+    preview: "likely-safe-card-preview.jpg",
   },
   caution: {
-    original: "not-sure-complete.png",
-    preview: "not-sure-complete-preview.jpg",
+    original: "not-sure-card.png",
+    preview: "not-sure-card-preview.jpg",
   },
   danger: {
-    original: "not-safe.png",
-    preview: "not-safe-preview.jpg",
+    original: "not-safe-card.png",
+    preview: "not-safe-card-preview.jpg",
   },
 };
 

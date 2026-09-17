@@ -11,22 +11,22 @@ test("creates HTTPS image messages for each verdict", () => {
 
   assert.deepEqual(message, {
     type: "image",
-    originalContentUrl: "https://cyberguard.sbycom.com/assets/status/safe.png",
+    originalContentUrl: "https://cyberguard.sbycom.com/assets/status/safe-card.png",
     previewImageUrl:
-      "https://cyberguard.sbycom.com/assets/status/safe-preview.jpg",
+      "https://cyberguard.sbycom.com/assets/status/safe-card-preview.jpg",
   });
   assert.match(
     buildStatusImageMessage("caution", "https://cyberguard.sbycom.com").originalContentUrl,
-    /not-sure-complete\.png$/
+    /not-sure-card\.png$/
   );
   assert.match(
     buildStatusImageMessage("likely_safe", "https://cyberguard.sbycom.com")
       .originalContentUrl,
-    /likely-safe\.png$/
+    /likely-safe-card\.png$/
   );
   assert.match(
     buildStatusImageMessage("danger", "https://cyberguard.sbycom.com").originalContentUrl,
-    /not-safe\.png$/
+    /not-safe-card\.png$/
   );
 });
 
