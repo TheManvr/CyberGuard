@@ -148,5 +148,295 @@
     "allowSubdomains": true,
     "verifiedAt": "2026-09-15",
     "status": "verified"
+  },
+  {
+    "domain": "facebook.com",
+    "organization": "Meta (Facebook)",
+    "purposeThai": "แพลตฟอร์มโซเชียลมีเดีย Facebook ของ Meta",
+    "category": "social-media",
+    "officialSource": "https://about.meta.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "instagram.com",
+    "organization": "Meta (Instagram)",
+    "purposeThai": "แพลตฟอร์มแบ่งปันรูปภาพและวิดีโอ Instagram ของ Meta",
+    "category": "social-media",
+    "officialSource": "https://about.instagram.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "x.com",
+    "organization": "X",
+    "purposeThai": "แพลตฟอร์มโซเชียลมีเดีย X",
+    "category": "social-media",
+    "officialSource": "https://about.x.com/en",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "chatgpt.com",
+    "organization": "OpenAI (ChatGPT)",
+    "purposeThai": "บริการ ChatGPT ของ OpenAI",
+    "category": "technology",
+    "officialSource": "https://chatgpt.com/overview/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "shopee.co.th",
+    "organization": "Shopee Thailand",
+    "purposeThai": "แพลตฟอร์มซื้อขายสินค้าออนไลน์ Shopee ประเทศไทย",
+    "category": "ecommerce",
+    "officialSource": "https://shopee.co.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "lazada.co.th",
+    "organization": "Lazada Thailand",
+    "purposeThai": "แพลตฟอร์มซื้อขายสินค้าออนไลน์ Lazada ประเทศไทย",
+    "category": "ecommerce",
+    "officialSource": "https://www.lazada.co.th/about/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "pantip.com",
+    "organization": "Pantip",
+    "purposeThai": "ชุมชนสนทนาออนไลน์ Pantip",
+    "category": "community",
+    "officialSource": "https://pantip.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "grab.com",
+    "organization": "Grab",
+    "purposeThai": "บริการเรียกรถ ส่งอาหาร และจัดส่งของ Grab",
+    "category": "services",
+    "officialSource": "https://www.grab.com/th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "wongnai.com",
+    "organization": "Wongnai",
+    "purposeThai": "บริการค้นหาร้านอาหาร รีวิว และสั่งอาหาร Wongnai",
+    "category": "services",
+    "officialSource": "https://www.wongnai.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "agoda.com",
+    "organization": "Agoda",
+    "purposeThai": "บริการค้นหาและจองที่พัก Agoda",
+    "category": "travel",
+    "officialSource": "https://www.agoda.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "booking.com",
+    "organization": "Booking.com",
+    "purposeThai": "บริการค้นหาและจองที่พัก Booking.com",
+    "category": "travel",
+    "officialSource": "https://www.booking.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "airbnb.com",
+    "organization": "Airbnb",
+    "purposeThai": "บริการค้นหาและจองที่พัก Airbnb",
+    "category": "travel",
+    "officialSource": "https://www.airbnb.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "traveloka.com",
+    "organization": "Traveloka",
+    "purposeThai": "บริการจองที่พักและการเดินทาง Traveloka",
+    "category": "travel",
+    "officialSource": "https://www.traveloka.com/en-th",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "7eleven.co.th",
+    "organization": "7-Eleven Thailand",
+    "purposeThai": "เว็บไซต์และบริการของ 7-Eleven ประเทศไทย",
+    "category": "retail",
+    "officialSource": "https://www.7eleven.co.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "lotuss.com",
+    "organization": "Lotus's",
+    "purposeThai": "บริการช้อปปิ้งออนไลน์ของ Lotus's",
+    "category": "retail",
+    "officialSource": "https://www.lotuss.com/th",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "kasikornbank.com",
+    "organization": "ธนาคารกสิกรไทย",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารกสิกรไทย",
+    "category": "thai-bank",
+    "officialSource": "https://www.kasikornbank.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "scb.co.th",
+    "organization": "ธนาคารไทยพาณิชย์",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารไทยพาณิชย์",
+    "category": "thai-bank",
+    "officialSource": "https://www.scb.co.th/th/home/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "bangkokbank.com",
+    "organization": "ธนาคารกรุงเทพ",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารกรุงเทพ",
+    "category": "thai-bank",
+    "officialSource": "https://www.bangkokbank.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "krungsri.com",
+    "organization": "ธนาคารกรุงศรีอยุธยา",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารกรุงศรีอยุธยา",
+    "category": "thai-bank",
+    "officialSource": "https://www.krungsri.com/th/personal",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "ttbbank.com",
+    "organization": "ทีทีบี",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารทหารไทยธนชาต",
+    "category": "thai-bank",
+    "officialSource": "https://www.ttbbank.com/th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "krungthai.com",
+    "organization": "ธนาคารกรุงไทย",
+    "purposeThai": "เว็บไซต์และบริการของธนาคารกรุงไทย",
+    "category": "thai-bank",
+    "officialSource": "https://krungthai.com/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "ais.th",
+    "organization": "AIS",
+    "purposeThai": "เว็บไซต์และบริการโทรคมนาคม AIS",
+    "category": "telecom",
+    "officialSource": "https://www.ais.th/consumers",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "true.th",
+    "organization": "True-dtac",
+    "purposeThai": "เว็บไซต์และบริการโทรคมนาคม True-dtac",
+    "category": "telecom",
+    "officialSource": "https://www.true.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "thailandpost.co.th",
+    "organization": "ไปรษณีย์ไทย",
+    "purposeThai": "เว็บไซต์และบริการของไปรษณีย์ไทย",
+    "category": "services",
+    "officialSource": "https://www.thailandpost.co.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "rd.go.th",
+    "organization": "กรมสรรพากร",
+    "purposeThai": "ข้อมูลและบริการภาษีของกรมสรรพากร",
+    "category": "thai-government",
+    "officialSource": "https://www.rd.go.th/landing.html",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "moph.go.th",
+    "organization": "กระทรวงสาธารณสุข",
+    "purposeThai": "ข้อมูลและบริการของกระทรวงสาธารณสุข",
+    "category": "thai-government",
+    "officialSource": "https://moph.go.th/",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "thaipbs.or.th",
+    "organization": "ไทยพีบีเอส",
+    "purposeThai": "เว็บไซต์ข่าวและรายการของไทยพีบีเอส",
+    "category": "thai-media",
+    "officialSource": "https://www.thaipbs.or.th/home",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "thairath.co.th",
+    "organization": "ไทยรัฐ",
+    "purposeThai": "เว็บไซต์ข่าวไทยรัฐออนไลน์",
+    "category": "thai-media",
+    "officialSource": "https://www.thairath.co.th/home",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
+  },
+  {
+    "domain": "khaosod.co.th",
+    "organization": "ข่าวสด",
+    "purposeThai": "เว็บไซต์ข่าวของข่าวสด",
+    "category": "thai-media",
+    "officialSource": "https://www.khaosod.co.th/home",
+    "allowSubdomains": true,
+    "verifiedAt": "2026-09-17",
+    "status": "verified"
   }
 ]
