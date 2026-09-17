@@ -18,6 +18,14 @@ const HELP_REPLY = [
   "ส่งลิงก์เต็มที่ขึ้นต้นด้วย http:// หรือ https:// มาได้เลยครับ",
 ].join("\n");
 
+const HOW_TO_USE_REPLY = [
+  "📘 วิธีใช้งาน Cyber-Guard Bot",
+  "1. กด ‘ตรวจลิงก์’ แล้ววางลิงก์ที่สงสัย จากนั้นกดส่ง",
+  "2. กด ‘ตรวจข้อความ’ แล้วส่งข้อความที่อยากให้ช่วยอ่าน",
+  "3. อ่านผลตรวจและทำตามคำแนะนำก่อนกดลิงก์หรือโอนเงิน",
+  "⚠️ ห้ามส่งรหัสผ่าน รหัส OTP หรือเลขบัตรให้บอตครับ",
+].join("\n");
+
 const LINK_CHECK_REPLY = [
   "🔗 ส่งลิงก์ที่อยากตรวจมาได้เลยครับ",
   "ตัวอย่าง: https://example.com",
@@ -51,7 +59,10 @@ function getQuickConversationReply(text) {
   if (/^(สวัสดี|สวัสดีครับ|สวัสดีค่ะ|หวัดดี|ดีครับ|ดีค่ะ|hello|hi)$/.test(normalized)) {
     return WELCOME_REPLY;
   }
-  if (/^(ช่วยอะไรได้บ้าง|ทำอะไรได้บ้าง|วิธีใช้|วิธีใช้งาน|ช่วยด้วย|help)$/.test(normalized)) {
+  if (/^(วิธีใช้|วิธีใช้งาน)$/.test(normalized)) {
+    return HOW_TO_USE_REPLY;
+  }
+  if (/^(ช่วยอะไรได้บ้าง|ทำอะไรได้บ้าง|ช่วยด้วย|help)$/.test(normalized)) {
     return HELP_REPLY;
   }
   if (/^(ตรวจลิงก์|เช็กลิงก์|ตรวจสอบลิงก์)$/.test(normalized)) {
@@ -122,6 +133,7 @@ async function createGeneralChatReply(text, options = {}) {
 
 module.exports = {
   HELP_REPLY,
+  HOW_TO_USE_REPLY,
   IMAGE_REPLY,
   LINK_CHECK_REPLY,
   STICKER_REPLY,

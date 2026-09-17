@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   createGeneralChatReply,
   getQuickConversationReply,
+  HOW_TO_USE_REPLY,
   IMAGE_REPLY,
   LINK_CHECK_REPLY,
   STICKER_REPLY,
@@ -35,8 +36,10 @@ test("explains the three rich-menu actions in plain Thai", () => {
   assert.equal(getQuickConversationReply("ตรวจข้อความ"), TEXT_CHECK_REPLY);
   assert.equal(
     getQuickConversationReply("วิธีใช้งาน"),
-    getQuickConversationReply("ช่วยอะไรได้บ้าง")
+    HOW_TO_USE_REPLY
   );
+  assert.match(HOW_TO_USE_REPLY, /กด ‘ตรวจลิงก์’/);
+  assert.match(HOW_TO_USE_REPLY, /รหัส OTP/);
   assert.match(LINK_CHECK_REPLY, /ส่งลิงก์/);
   assert.match(TEXT_CHECK_REPLY, /คัดลอกข้อความ/);
 });
